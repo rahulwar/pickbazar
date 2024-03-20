@@ -3,9 +3,9 @@ import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
 @Schema({timestamps:true})
-export class Product extends Document {
+export class ProductModel extends Document {
   @Prop({ default: uuidv4 })
-  id: string;
+  id: number;
 
   @Prop({ required: true })
   name: string;
@@ -17,7 +17,7 @@ export class Product extends Document {
   description: string;
 
   @Prop({ default: uuidv4 })
-  type_id: number;
+  type_id: string;
 
   @Prop({ required: true })
   price: number;
@@ -67,7 +67,7 @@ export class Product extends Document {
   @Prop()
   length: number;
 
-  @Prop({ required: true })
+  @Prop({ type: Object }) // Assuming that the id, original, and thumbnail are strings
   image: {
     id: string;
     original: string;
@@ -77,7 +77,7 @@ export class Product extends Document {
   @Prop()
   video: string;
 
-  @Prop()
+  @Prop({type:Object})
   gallery: {
     id: string;
     original: string;
@@ -112,7 +112,7 @@ export class Product extends Document {
   total_reviews: number;
 
   @Prop()
-  my_review: any;
+  my_review: string;
 
   @Prop({ required: true })
   in_wishlist: boolean;
@@ -130,14 +130,14 @@ export class Product extends Document {
     slug: string;
     language: string;
     icon: string;
-    image: any[];
-    details: any;
-    parent: any;
+    image: string[];
+    details: string;
+    parent: string;
     type_id: number;
     created_at: Date;
     updated_at: Date;
     deleted_at: Date;
-    parent_id: any;
+    parent_id: string;
     translated_languages: string[];
     pivot: {
       product_id: number;
@@ -145,7 +145,7 @@ export class Product extends Document {
     };
   }[];
 
-  @Prop()
+  @Prop({type:Object})
   shop: {
     id: number;
     owner_id: number;
@@ -190,7 +190,7 @@ export class Product extends Document {
     updated_at: Date;
   };
 
-  @Prop()
+  @Prop({type:Object})
   type: {
     id: number;
     name: string;
@@ -213,22 +213,22 @@ export class Product extends Document {
   };
 
   @Prop()
-  variations: any[];
+  variations: string[];
 
   @Prop()
-  metas: any[];
+  metas: string[];
 
   @Prop()
-  manufacturer: any;
+  manufacturer: string;
 
   @Prop()
-  variation_options: any[];
+  variation_options: string[];
 
   @Prop()
-  tags: any[];
+  tags: string[];
 
   @Prop()
-  author: any;
+  author: string;
 }
 
-export const ProductSchema = SchemaFactory.createForClass(Product);
+export const ProductSchema = SchemaFactory.createForClass(ProductModel);
