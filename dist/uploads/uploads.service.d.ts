@@ -1,13 +1,11 @@
-/// <reference types="node" />
-import * as AWS from 'aws-sdk';
-import { MimeType } from 'aws-sdk/clients/bedrockagentruntime';
+/// <reference types="multer" />
 export declare class UploadsService {
-    s3: AWS.S3;
-    uploadFile(file: any): Promise<{
-        url: string;
-    }>;
-    s3_upload(file: Buffer, bucket: string, name: string, mimetype: MimeType): Promise<{
-        url: string;
-    }>;
+    private s3;
+    uploadFiles(files: Array<Express.Multer.File>): Promise<{
+        thumbnail: string;
+        original: string;
+        id: string;
+    }[]>;
+    private s3_upload;
     remove(id: string): string;
 }

@@ -39,10 +39,25 @@ let UploadsService = class UploadsService {
             secretAccessKey: 'M7GggtmVp9hav/cwJkG4ndxgadJYqso2pm0rm+wj',
         });
     }
-    async uploadFile(file) {
-        console.log(file);
-        const { originalname } = file;
-        return await this.s3_upload(file.buffer, process.env.AWS_S3_BUCKET, originalname, file.mimetype);
+    async uploadFiles(files) {
+        const uploadPromises = files.map(async (file) => {
+            const { originalname } = file;
+            return await this.s3_upload(file.buffer, process.env.AWS_S3_BUCKET, originalname, file.mimetype);
+        });
+        try {
+            const uploadedFiles = await Promise.all(uploadPromises);
+            return uploadedFiles.map((response) => {
+                return {
+                    thumbnail: response.thumbnail,
+                    original: response.original,
+                    id: response.id,
+                };
+            });
+        }
+        catch (e) {
+            console.error(e.message);
+            throw new common_1.HttpException('Internal Server Error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
     async s3_upload(file, bucket, name, mimetype) {
         const params = {
@@ -57,13 +72,15 @@ let UploadsService = class UploadsService {
             },
         };
         try {
-            let s3Response = await this.s3.upload(params).promise();
+            const s3Response = await this.s3.upload(params).promise();
             return {
-                "url": s3Response.Location
+                thumbnail: s3Response.Location,
+                original: s3Response.Location,
+                id: s3Response.ETag,
             };
         }
         catch (e) {
-            console.log(e.message);
+            console.error(e.message);
             throw new common_1.HttpException('Internal Server Error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

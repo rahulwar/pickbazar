@@ -44,7 +44,7 @@ let ProductsController = class ProductsController {
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: Object }),
+    openapi.ApiResponse({ status: 201 }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_product_dto_1.CreateProductDto]),
@@ -59,7 +59,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "getProducts", null);
 __decorate([
-    (0, common_1.Get)(":id"),
+    (0, common_1.Get)(':id'),
     openapi.ApiResponse({ status: 200, type: require("./schema/products").ProductModel }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),

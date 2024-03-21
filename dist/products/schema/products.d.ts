@@ -24,7 +24,7 @@
 /// <reference types="mongoose/types/inferschematype" />
 import { Document } from 'mongoose';
 export declare class ProductModel extends Document {
-    id: number;
+    id: string;
     name: string;
     slug: string;
     description: string;
@@ -49,12 +49,14 @@ export declare class ProductModel extends Document {
         id: string;
         original: string;
         thumbnail: string;
+        file_name: string;
     };
-    video: string;
+    video: string[];
     gallery: {
         id: string;
         original: string;
         thumbnail: string;
+        file_name: string;
     }[];
     deleted_at: Date;
     author_id: number;

@@ -17,7 +17,7 @@ let ProductModel = class ProductModel extends mongoose_2.Document {
 };
 __decorate([
     (0, mongoose_1.Prop)({ default: uuid_1.v4 }),
-    __metadata("design:type", Number)
+    __metadata("design:type", String)
 ], ProductModel.prototype, "id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
@@ -48,11 +48,11 @@ __decorate([
     __metadata("design:type", String)
 ], ProductModel.prototype, "language", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "min_price", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "max_price", void 0);
 __decorate([
@@ -64,11 +64,11 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductModel.prototype, "quantity", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "in_stock", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "is_taxable", void 0);
 __decorate([
@@ -105,7 +105,7 @@ __decorate([
 ], ProductModel.prototype, "image", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Array)
 ], ProductModel.prototype, "video", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: Object }),
@@ -140,11 +140,11 @@ __decorate([
     __metadata("design:type", String)
 ], ProductModel.prototype, "external_product_button_text", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "ratings", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "total_reviews", void 0);
 __decorate([
@@ -152,7 +152,7 @@ __decorate([
     __metadata("design:type", String)
 ], ProductModel.prototype, "my_review", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Boolean)
 ], ProductModel.prototype, "in_wishlist", void 0);
 __decorate([

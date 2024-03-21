@@ -49,7 +49,6 @@ const paginate_1 = require("../common/pagination/paginate");
 const products_json_1 = __importDefault(require("../db/pickbazar/products.json"));
 const popular_products_json_1 = __importDefault(require("../db/pickbazar/popular-products.json"));
 const best_selling_products_json_1 = __importDefault(require("../db/pickbazar/best-selling-products.json"));
-const fuse_js_1 = __importDefault(require("fuse.js"));
 const products = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, products_json_1.default);
 const popularProducts = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, popular_products_json_1.default);
 const bestSellingProducts = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, best_selling_products_json_1.default);
@@ -66,7 +65,6 @@ const options = {
     ],
     threshold: 0.3,
 };
-const fuse = new fuse_js_1.default(products, options);
 let ProductsService = class ProductsService {
     constructor(Productmodel) {
         this.Productmodel = Productmodel;
@@ -74,10 +72,10 @@ let ProductsService = class ProductsService {
         this.popularProducts = popularProducts;
         this.bestSellingProducts = bestSellingProducts;
     }
-    create(createProductDto) {
-        return this.products[0];
+    async create(createProductDto) {
+        await this.Productmodel.create(createProductDto);
     }
-    async getProducts({ limit, page, search }) {
+    async getProducts({ limit, page, search, }) {
         if (!page)
             page = 1;
         if (!limit)
@@ -104,7 +102,7 @@ let ProductsService = class ProductsService {
         const product = await this.Productmodel.findOne({ id: id }).exec();
         return product;
     }
-    async getPopularProducts({ limit, type_slug }) {
+    async getPopularProducts({ limit, type_slug, }) {
         let query = {};
         if (type_slug) {
             query['type.slug'] = type_slug;
@@ -113,7 +111,7 @@ let ProductsService = class ProductsService {
         const products = documents.map((doc) => doc.toObject());
         return products;
     }
-    async getBestSellingProducts({ limit, type_slug }) {
+    async getBestSellingProducts({ limit, type_slug, }) {
         let query = {};
         if (type_slug) {
             query['type.slug'] = type_slug;

@@ -34,7 +34,7 @@ import { ProductModel } from './schema/products';
 export declare class ProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
-    createProduct(createProductDto: CreateProductDto): any;
+    createProduct(createProductDto: CreateProductDto): Promise<void>;
     getProducts(query: GetProductsDto): Promise<ProductPaginator>;
     getProduct(id: string): Promise<ProductModel>;
     update(id: string, updateProductDto: UpdateProductDto): Promise<import("mongoose").UpdateWriteOpResult>;

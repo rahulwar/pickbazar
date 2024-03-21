@@ -30,11 +30,11 @@ export class ProductsController {
   @Get()
   async getProducts(@Query() query: GetProductsDto): Promise<ProductPaginator> {
     return this.productsService.getProducts(query);
-  } 
+  }
 
-  @Get(":id") 
-  async getProduct(@Param('id') id : string) : Promise<ProductModel>{
-    return this.productsService.getProductByid(+id)
+  @Get(':id')
+  async getProduct(@Param('id') id: string): Promise<ProductModel> {
+    return this.productsService.getProductByid(+id);
   }
 
   // @Get(':slug')
@@ -44,9 +44,9 @@ export class ProductsController {
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    console.log(updateProductDto)
+    console.log(updateProductDto);
     return this.productsService.updateProduct(+id, updateProductDto);
-  } 
+  }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
@@ -66,7 +66,9 @@ export class PopularProductsController {
 export class BestSellingProductsController {
   constructor(private readonly productsService: ProductsService) {}
   @Get()
-  async getProducts(@Query() query: GetBestSellingProductsDto): Promise<Product[]> {
+  async getProducts(
+    @Query() query: GetBestSellingProductsDto,
+  ): Promise<Product[]> {
     return this.productsService.getBestSellingProducts(query);
   }
 }

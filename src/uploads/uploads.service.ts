@@ -1,25 +1,50 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import * as AWS from 'aws-sdk';
 import { MimeType } from 'aws-sdk/clients/bedrockagentruntime';
+
 @Injectable()
 export class UploadsService {
-  s3 = new AWS.S3({
+  private s3 = new AWS.S3({
     accessKeyId: 'AKIA5LNTH6JVTLY46TWD',
     secretAccessKey: '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',
   });
 
-  async uploadFile(file: any) { 
-    console.log(file); 
-    const { originalname } = file;
-    return await this.s3_upload(
-      file.buffer,
-      process.env.AWS_S3_BUCKET,
-      originalname,
-      file.mimetype,
-    );
-  } 
+  async uploadFiles(files: Array<Express.Multer.File>) {
+    const uploadPromises = files.map(async (file) => {
+      const { originalname } = file;
+      return await this.s3_upload(
+        file.buffer,
+        process.env.AWS_S3_BUCKET,
+        originalname,
+        file.mimetype,
+      );
+    });
 
-  async s3_upload(file:Buffer, bucket:string, name:string, mimetype:MimeType) {
+    try {
+      const uploadedFiles = await Promise.all(uploadPromises);
+
+      return uploadedFiles.map((response) => {
+        return {
+          thumbnail: response.thumbnail,
+          original: response.original,
+          id: response.id,
+        };
+      });
+    } catch (e) {
+      console.error(e.message);
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  private async s3_upload(
+    file: Buffer,
+    bucket: string,
+    name: string,
+    mimetype: MimeType,
+  ) {
     const params = {
       Bucket: bucket,
       Key: String(name),
@@ -33,13 +58,19 @@ export class UploadsService {
     };
 
     try {
-      let s3Response = await this.s3.upload(params).promise();
+      const s3Response = await this.s3.upload(params).promise();
+
       return {
-        "url":s3Response.Location
+        thumbnail: s3Response.Location,
+        original: s3Response.Location,
+        id: s3Response.ETag,
       };
     } catch (e) {
-      console.log(e.message); 
-      throw new HttpException('Internal Server Error',HttpStatus.INTERNAL_SERVER_ERROR)
+      console.error(e.message);
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 

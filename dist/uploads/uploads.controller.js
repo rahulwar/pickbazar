@@ -21,19 +21,19 @@ let UploadsController = class UploadsController {
     constructor(uploadsService) {
         this.uploadsService = uploadsService;
     }
-    uploadFile(file) {
-        return this.uploadsService.uploadFile(file);
+    uploadFiles(files) {
+        return this.uploadsService.uploadFiles(files);
     }
 };
 __decorate([
     (0, common_1.Post)(),
-    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('file')),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FilesInterceptor)('files')),
     openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.UploadedFile)()),
+    __param(0, (0, common_1.UploadedFiles)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Array]),
     __metadata("design:returntype", void 0)
-], UploadsController.prototype, "uploadFile", null);
+], UploadsController.prototype, "uploadFiles", null);
 UploadsController = __decorate([
     (0, common_1.Controller)('attachments'),
     __metadata("design:paramtypes", [uploads_service_1.UploadsService])

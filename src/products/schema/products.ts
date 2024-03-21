@@ -2,10 +2,11 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { v4 as uuidv4 } from 'uuid';
 
-@Schema({timestamps:true})
+@Schema({ timestamps: true })
 export class ProductModel extends Document {
+  // changes from number to string
   @Prop({ default: uuidv4 })
-  id: number;
+  id: string;
 
   @Prop({ required: true })
   name: string;
@@ -28,10 +29,12 @@ export class ProductModel extends Document {
   @Prop({ required: true })
   language: string;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   min_price: number;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   max_price: number;
 
   @Prop({ required: true })
@@ -40,10 +43,12 @@ export class ProductModel extends Document {
   @Prop({ required: true })
   quantity: number;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   in_stock: number;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   is_taxable: number;
 
   @Prop()
@@ -72,16 +77,18 @@ export class ProductModel extends Document {
     id: string;
     original: string;
     thumbnail: string;
+    file_name: string;
   };
 
   @Prop()
-  video: string;
+  video: string[];
 
-  @Prop({type:Object})
+  @Prop({ type: Object })
   gallery: {
     id: string;
     original: string;
     thumbnail: string;
+    file_name: string;
   }[];
 
   @Prop()
@@ -105,16 +112,19 @@ export class ProductModel extends Document {
   @Prop()
   external_product_button_text: string;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   ratings: number;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   total_reviews: number;
 
   @Prop()
   my_review: string;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   in_wishlist: boolean;
 
   @Prop()
@@ -145,7 +155,7 @@ export class ProductModel extends Document {
     };
   }[];
 
-  @Prop({type:Object})
+  @Prop({ type: Object })
   shop: {
     id: number;
     owner_id: number;
@@ -190,7 +200,7 @@ export class ProductModel extends Document {
     updated_at: Date;
   };
 
-  @Prop({type:Object})
+  @Prop({ type: Object })
   type: {
     id: number;
     name: string;

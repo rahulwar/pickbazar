@@ -12,11 +12,11 @@ export declare class ProductsService {
     private products;
     private popularProducts;
     private bestSellingProducts;
-    create(createProductDto: CreateProductDto): any;
-    getProducts({ limit, page, search }: GetProductsDto): Promise<ProductPaginator>;
+    create(createProductDto: CreateProductDto): Promise<void>;
+    getProducts({ limit, page, search, }: GetProductsDto): Promise<ProductPaginator>;
     getProductByid(id: number): Promise<ProductModel>;
-    getPopularProducts({ limit, type_slug }: GetPopularProductsDto): Promise<Product[]>;
-    getBestSellingProducts({ limit, type_slug }: GetBestSellingProductsDto): Promise<Product[]>;
+    getPopularProducts({ limit, type_slug, }: GetPopularProductsDto): Promise<Product[]>;
+    getBestSellingProducts({ limit, type_slug, }: GetBestSellingProductsDto): Promise<Product[]>;
     updateProduct(id: number, updateProductDto: UpdateProductDto): Promise<mongoose.UpdateWriteOpResult>;
     deleteProduct(id: number): Promise<mongoose.mongo.DeleteResult>;
 }
