@@ -36,11 +36,11 @@ __decorate([
     __metadata("design:type", String)
 ], ProductModel.prototype, "type_id", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "price", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "sale_price", void 0);
 __decorate([
@@ -56,7 +56,7 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductModel.prototype, "max_price", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", String)
 ], ProductModel.prototype, "sku", void 0);
 __decorate([
@@ -124,11 +124,11 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductModel.prototype, "manufacturer_id", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "is_digital", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ required: true }),
+    (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
 ], ProductModel.prototype, "is_external", void 0);
 __decorate([

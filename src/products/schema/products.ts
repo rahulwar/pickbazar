@@ -20,10 +20,12 @@ export class ProductModel extends Document {
   @Prop({ default: uuidv4 })
   type_id: string;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   price: number;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   sale_price: number;
 
   @Prop({ required: true })
@@ -37,7 +39,8 @@ export class ProductModel extends Document {
   @Prop()
   max_price: number;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   sku: string;
 
   @Prop({ required: true })
@@ -100,10 +103,12 @@ export class ProductModel extends Document {
   @Prop()
   manufacturer_id: number;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   is_digital: number;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  @Prop()
   is_external: number;
 
   @Prop()
