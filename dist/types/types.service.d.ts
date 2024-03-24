@@ -8,13 +8,17 @@ export declare class TypesService {
     private Typesmodel;
     private types;
     constructor(Typesmodel: mongoose.Model<TypesModel>);
-    getTypes({ text, search }: GetTypesDto): Type[];
-    getTypeBySlug(slug: string): Type;
+    getTypes({ text, search }: GetTypesDto): Promise<(mongoose.Document<unknown, {}, TypesModel> & TypesModel & {
+        _id: mongoose.Types.ObjectId;
+    })[]>;
+    getTypeBySlug(slug: string): Promise<Type>;
     create(createTypeDto: CreateTypeDto): Promise<mongoose.Document<unknown, {}, TypesModel> & TypesModel & {
         _id: mongoose.Types.ObjectId;
     }>;
     findAll(): string;
     findOne(id: number): string;
-    update(id: number, updateTypeDto: UpdateTypeDto): Type;
-    remove(id: number): string;
+    update(id: string, updateTypeDto: UpdateTypeDto): Promise<mongoose.Document<unknown, {}, TypesModel> & TypesModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    remove(id: string): Promise<mongoose.mongo.DeleteResult>;
 }

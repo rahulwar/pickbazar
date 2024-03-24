@@ -83,7 +83,21 @@ export class UploadsService {
   // findOne(id: number) {
   //   return `This action returns a #${id} upload`;
   // }
-  remove(id: string) {
-    return `This action removes a #${id} upload`;
+  async remove(id: string) {
+    const params = {
+      Bucket: process.env.AWS_S3_BUCKET,
+      Key: id, // Assuming `id` is the key or filename of the object in S3
+    };
+
+    try {
+      await this.s3.deleteObject(params).promise();
+      return `Successfully removed file with id: ${id}`;
+    } catch (error) {
+      console.error('Error removing file from S3:', error);
+      throw new HttpException(
+        'Internal Server Error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
   }
 }

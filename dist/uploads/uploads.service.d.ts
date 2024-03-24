@@ -7,5 +7,5 @@ export declare class UploadsService {
         id: string;
     }[]>;
     private s3_upload;
-    remove(id: string): string;
+    remove(id: string): Promise<string>;
 }

@@ -33,8 +33,12 @@ export declare class TypesController {
     create(createTypeDto: CreateTypeDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/types").TypesModel> & import("./schema/types").TypesModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    findAll(query: GetTypesDto): import("./entities/type.entity").Type[];
-    getTypeBySlug(slug: string): import("./entities/type.entity").Type;
-    update(id: string, updateTypeDto: UpdateTypeDto): import("./entities/type.entity").Type;
-    remove(id: string): string;
+    findAll(query: GetTypesDto): Promise<(import("mongoose").Document<unknown, {}, import("./schema/types").TypesModel> & import("./schema/types").TypesModel & {
+        _id: import("mongoose").Types.ObjectId;
+    })[]>;
+    getTypeBySlug(slug: string): Promise<import("./entities/type.entity").Type>;
+    update(id: string, updateTypeDto: UpdateTypeDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/types").TypesModel> & import("./schema/types").TypesModel & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
+    remove(id: string): Promise<import("mongodb").DeleteResult>;
 }

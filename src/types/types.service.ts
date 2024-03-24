@@ -26,37 +26,56 @@ export class TypesService {
     private Typesmodel: mongoose.Model<TypesModel>,
   ) {}
 
-  getTypes({ text, search }: GetTypesDto) {
-    let data: Type[] = this.types;
-    if (text?.replace(/%/g, '')) {
-      data = fuse.search(text)?.map(({ item }) => item);
-    }
-
-    if (search) {
-      const parseSearchParams = search.split(';');
-      const searchText: any = [];
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        // TODO: Temp Solution
-        if (key !== 'slug') {
-          searchText.push({
-            [key]: value,
-          });
+  async getTypes({ text, search }: GetTypesDto) {
+    try {
+      let query: any = {};
+      if (search) {
+        const searchParams = search.split(';');
+        for (const searchParam of searchParams) {
+          const [key, value] = searchParam.split(':');
+          query[key] = value;
         }
       }
-
-      data = fuse
-        .search({
-          $and: searchText,
-        })
-        ?.map(({ item }) => item);
+      const data = await this.Typesmodel.find(query);
+      return data;
+    } catch (error) {
+      // Handle any errors
+      console.error('Error finding products:', error);
+      throw error;
     }
 
-    return data;
+    // let data: Type[] = this.types;
+
+    // if (text?.replace(/%/g, '')) {
+    //   data = fuse.search(text)?.map(({ item }) => item);
+    // }
+
+    // if (search) {
+    //   const parseSearchParams = search.split(';');
+    //   const searchText: any = [];
+    //   for (const searchParam of parseSearchParams) {
+    //     const [key, value] = searchParam.split(':');
+    //     // TODO: Temp Solution
+    //     if (key !== 'slug') {
+    //       searchText.push({
+    //         [key]: value,
+    //       });
+    //     }
+    //   }
+    //   console.log(searchText);
+
+    //   data = fuse
+    //     .search({
+    //       $and: searchText,
+    //     })
+    //     ?.map(({ item }) => item);
+    // }
+
+    // return data;
   }
 
-  getTypeBySlug(slug: string): Type {
-    return this.types.find((p) => p.slug === slug);
+  async getTypeBySlug(slug: string): Promise<Type> {
+    return await this.Typesmodel.findOne({ slug: slug });
   }
 
   async create(createTypeDto: CreateTypeDto) {
@@ -71,11 +90,12 @@ export class TypesService {
     return `This action returns a #${id} type`;
   }
 
-  update(id: number, updateTypeDto: UpdateTypeDto) {
-    return this.types[0];
+  async update(id: string, updateTypeDto: UpdateTypeDto) {
+    await this.Typesmodel.updateOne({ id }, { $set: updateTypeDto });
+    return this.Typesmodel.findOne({ id });
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} type`;
+  async remove(id: string) {
+    return await this.Typesmodel.deleteOne({ id });
   }
 }

@@ -84,8 +84,19 @@ let UploadsService = class UploadsService {
             throw new common_1.HttpException('Internal Server Error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    remove(id) {
-        return `This action removes a #${id} upload`;
+    async remove(id) {
+        const params = {
+            Bucket: process.env.AWS_S3_BUCKET,
+            Key: id,
+        };
+        try {
+            await this.s3.deleteObject(params).promise();
+            return `Successfully removed file with id: ${id}`;
+        }
+        catch (error) {
+            console.error('Error removing file from S3:', error);
+            throw new common_1.HttpException('Internal Server Error', common_1.HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 };
 UploadsService = __decorate([

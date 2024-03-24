@@ -33,10 +33,10 @@ let TypesController = class TypesController {
         return this.typesService.getTypeBySlug(slug);
     }
     update(id, updateTypeDto) {
-        return this.typesService.update(+id, updateTypeDto);
+        return this.typesService.update(id, updateTypeDto);
     }
     remove(id) {
-        return this.typesService.remove(+id);
+        return this.typesService.remove(id);
     }
 };
 __decorate([
@@ -49,7 +49,7 @@ __decorate([
 ], TypesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: [require("./entities/type.entity").Type] }),
+    openapi.ApiResponse({ status: 200, type: [Object] }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [get_types_dto_1.GetTypesDto]),
@@ -65,7 +65,7 @@ __decorate([
 ], TypesController.prototype, "getTypeBySlug", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/type.entity").Type }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -74,7 +74,7 @@ __decorate([
 ], TypesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

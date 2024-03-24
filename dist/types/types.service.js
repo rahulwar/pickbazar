@@ -35,32 +35,26 @@ let TypesService = class TypesService {
         this.Typesmodel = Typesmodel;
         this.types = types;
     }
-    getTypes({ text, search }) {
-        var _a, _b;
-        let data = this.types;
-        if (text === null || text === void 0 ? void 0 : text.replace(/%/g, '')) {
-            data = (_a = fuse.search(text)) === null || _a === void 0 ? void 0 : _a.map(({ item }) => item);
-        }
-        if (search) {
-            const parseSearchParams = search.split(';');
-            const searchText = [];
-            for (const searchParam of parseSearchParams) {
-                const [key, value] = searchParam.split(':');
-                if (key !== 'slug') {
-                    searchText.push({
-                        [key]: value,
-                    });
+    async getTypes({ text, search }) {
+        try {
+            let query = {};
+            if (search) {
+                const searchParams = search.split(';');
+                for (const searchParam of searchParams) {
+                    const [key, value] = searchParam.split(':');
+                    query[key] = value;
                 }
             }
-            data = (_b = fuse
-                .search({
-                $and: searchText,
-            })) === null || _b === void 0 ? void 0 : _b.map(({ item }) => item);
+            const data = await this.Typesmodel.find(query);
+            return data;
         }
-        return data;
+        catch (error) {
+            console.error('Error finding products:', error);
+            throw error;
+        }
     }
-    getTypeBySlug(slug) {
-        return this.types.find((p) => p.slug === slug);
+    async getTypeBySlug(slug) {
+        return await this.Typesmodel.findOne({ slug: slug });
     }
     async create(createTypeDto) {
         return await this.Typesmodel.create(createTypeDto);
@@ -71,11 +65,12 @@ let TypesService = class TypesService {
     findOne(id) {
         return `This action returns a #${id} type`;
     }
-    update(id, updateTypeDto) {
-        return this.types[0];
+    async update(id, updateTypeDto) {
+        await this.Typesmodel.updateOne({ id }, { $set: updateTypeDto });
+        return this.Typesmodel.findOne({ id });
     }
-    remove(id) {
-        return `This action removes a #${id} type`;
+    async remove(id) {
+        return await this.Typesmodel.deleteOne({ id });
     }
 };
 TypesService = __decorate([
