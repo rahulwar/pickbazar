@@ -21,20 +21,28 @@
 /// <reference types="mongoose/types/utility" />
 /// <reference types="mongoose/types/validation" />
 /// <reference types="mongoose/types/virtuals" />
-/// <reference types="mongoose" />
 /// <reference types="mongoose/types/inferschematype" />
-import { TypesService } from './types.service';
-import { CreateTypeDto } from './dto/create-type.dto';
-import { UpdateTypeDto } from './dto/update-type.dto';
-import { GetTypesDto } from './dto/get-types.dto';
-export declare class TypesController {
-    private readonly typesService;
-    constructor(typesService: TypesService);
-    create(createTypeDto: CreateTypeDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/types").TypesModel> & import("./schema/types").TypesModel & {
-        _id: import("mongoose").Types.ObjectId;
-    }>;
-    findAll(query: GetTypesDto): import("./entities/type.entity").Type[];
-    getTypeBySlug(slug: string): import("./entities/type.entity").Type;
-    update(id: string, updateTypeDto: UpdateTypeDto): import("./entities/type.entity").Type;
-    remove(id: string): string;
+import { Document } from 'mongoose';
+import { Category } from '../entities/category.entity';
+import { Attachment } from 'src/common/entities/attachment.entity';
+import { Type } from 'src/types/entities/type.entity';
+import { Product } from 'src/products/entities/product.entity';
+export declare class CategoryModel extends Document {
+    id: string;
+    name: string;
+    slug: string;
+    parent: Category;
+    children: Category[];
+    details: string;
+    image: Attachment;
+    icon: string;
+    type_id: Type;
+    products: Product[];
+    language: string;
+    translated_language: string[];
 }
+export declare const CategorySchema: import("mongoose").Schema<CategoryModel, import("mongoose").Model<CategoryModel, any, any, any, Document<unknown, any, CategoryModel> & CategoryModel & {
+    _id: import("mongoose").Types.ObjectId;
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, CategoryModel, Document<unknown, {}, import("mongoose").FlatRecord<CategoryModel>> & import("mongoose").FlatRecord<CategoryModel> & {
+    _id: import("mongoose").Types.ObjectId;
+}>;

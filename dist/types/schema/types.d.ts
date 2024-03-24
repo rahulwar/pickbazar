@@ -21,20 +21,24 @@
 /// <reference types="mongoose/types/utility" />
 /// <reference types="mongoose/types/validation" />
 /// <reference types="mongoose/types/virtuals" />
-/// <reference types="mongoose" />
 /// <reference types="mongoose/types/inferschematype" />
-import { TypesService } from './types.service';
-import { CreateTypeDto } from './dto/create-type.dto';
-import { UpdateTypeDto } from './dto/update-type.dto';
-import { GetTypesDto } from './dto/get-types.dto';
-export declare class TypesController {
-    private readonly typesService;
-    constructor(typesService: TypesService);
-    create(createTypeDto: CreateTypeDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/types").TypesModel> & import("./schema/types").TypesModel & {
-        _id: import("mongoose").Types.ObjectId;
-    }>;
-    findAll(query: GetTypesDto): import("./entities/type.entity").Type[];
-    getTypeBySlug(slug: string): import("./entities/type.entity").Type;
-    update(id: string, updateTypeDto: UpdateTypeDto): import("./entities/type.entity").Type;
-    remove(id: string): string;
+import { Document } from 'mongoose';
+import { Attachment } from 'src/common/entities/attachment.entity';
+import { Banner, TypeSettings } from '../entities/type.entity';
+export declare class TypesModel extends Document {
+    id: string;
+    name: string;
+    slug: string;
+    image: Attachment;
+    icon: string;
+    banners: Banner[];
+    promotional_sliders: Attachment[];
+    settings?: TypeSettings;
+    language: string;
+    translated_languages: string[];
 }
+export declare const TypesSchema: import("mongoose").Schema<TypesModel, import("mongoose").Model<TypesModel, any, any, any, Document<unknown, any, TypesModel> & TypesModel & {
+    _id: import("mongoose").Types.ObjectId;
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, TypesModel, Document<unknown, {}, import("mongoose").FlatRecord<TypesModel>> & import("mongoose").FlatRecord<TypesModel> & {
+    _id: import("mongoose").Types.ObjectId;
+}>;

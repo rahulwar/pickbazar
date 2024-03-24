@@ -32,11 +32,10 @@ let ProductsController = class ProductsController {
         return this.productsService.getProducts(query);
     }
     async getProduct(id) {
-        return this.productsService.getProductByid(+id);
+        return this.productsService.getProductByid(id);
     }
     update(id, updateProductDto) {
-        console.log(updateProductDto);
-        return this.productsService.updateProduct(+id, updateProductDto);
+        return this.productsService.updateProduct(id, updateProductDto);
     }
     remove(id) {
         return this.productsService.deleteProduct(+id);
@@ -67,7 +66,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], ProductsController.prototype, "getProduct", null);
 __decorate([
-    (0, common_1.Patch)(':id'),
+    (0, common_1.Put)(':id'),
     openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),

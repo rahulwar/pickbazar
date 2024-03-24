@@ -10,7 +10,7 @@ export declare class Category extends CoreEntity {
     details?: string;
     image?: Attachment;
     icon?: string;
-    type?: Type;
+    type_id?: Type;
     products?: Product[];
     language: string;
     translated_languages: string[];

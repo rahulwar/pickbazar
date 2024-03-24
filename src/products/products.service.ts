@@ -88,8 +88,8 @@ export class ProductsService {
   //      return productSlug;
   //   }
 
-  async getProductByid(id: number): Promise<ProductModel> {
-    const product = await this.Productmodel.findOne({ id: id }).exec();
+  async getProductByid(id: string): Promise<ProductModel> {
+    const product = await this.Productmodel.findOne({ slug: id }).exec();
     return product;
   }
 
@@ -195,12 +195,16 @@ export class ProductsService {
   //   };
   // }
 
-  async updateProduct(id: number, updateProductDto: UpdateProductDto) {
-    console.log(id);
+  async updateProduct(id: string, updateProductDto: UpdateProductDto) {
+    // console.log(id);
+    // const product = await this.Productmodel.find({ id: id });
+    // console.log(product);
     const updatedProduct = await this.Productmodel.updateOne(
       { id: id },
       updateProductDto,
     );
+    // return product;
+    // console.log(updatedProduct);
     return updatedProduct;
   }
 

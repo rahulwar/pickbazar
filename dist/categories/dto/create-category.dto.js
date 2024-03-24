@@ -6,11 +6,12 @@ const swagger_1 = require("@nestjs/swagger");
 const category_entity_1 = require("../entities/category.entity");
 class CreateCategoryDto extends (0, swagger_1.PickType)(category_entity_1.Category, [
     'name',
-    'type',
+    'type_id',
     'details',
     'parent',
     'icon',
     'image',
+    'slug',
     'language',
 ]) {
     static _OPENAPI_METADATA_FACTORY() {

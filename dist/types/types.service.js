@@ -5,6 +5,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -15,6 +21,9 @@ const class_transformer_1 = require("class-transformer");
 const type_entity_1 = require("./entities/type.entity");
 const types_json_1 = __importDefault(require("../db/pickbazar/types.json"));
 const fuse_js_1 = __importDefault(require("fuse.js"));
+const mongoose_1 = require("@nestjs/mongoose");
+const types_1 = require("./schema/types");
+const mongoose_2 = __importDefault(require("mongoose"));
 const types = (0, class_transformer_1.plainToClass)(type_entity_1.Type, types_json_1.default);
 const options = {
     keys: ['name'],
@@ -22,7 +31,8 @@ const options = {
 };
 const fuse = new fuse_js_1.default(types, options);
 let TypesService = class TypesService {
-    constructor() {
+    constructor(Typesmodel) {
+        this.Typesmodel = Typesmodel;
         this.types = types;
     }
     getTypes({ text, search }) {
@@ -52,8 +62,8 @@ let TypesService = class TypesService {
     getTypeBySlug(slug) {
         return this.types.find((p) => p.slug === slug);
     }
-    create(createTypeDto) {
-        return this.types[0];
+    async create(createTypeDto) {
+        return await this.Typesmodel.create(createTypeDto);
     }
     findAll() {
         return `This action returns all types`;
@@ -69,7 +79,9 @@ let TypesService = class TypesService {
     }
 };
 TypesService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_1.InjectModel)(types_1.TypesModel.name)),
+    __metadata("design:paramtypes", [mongoose_2.default.Model])
 ], TypesService);
 exports.TypesService = TypesService;
 //# sourceMappingURL=types.service.js.map

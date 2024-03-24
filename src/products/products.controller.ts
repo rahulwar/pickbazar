@@ -34,7 +34,7 @@ export class ProductsController {
 
   @Get(':id')
   async getProduct(@Param('id') id: string): Promise<ProductModel> {
-    return this.productsService.getProductByid(+id);
+    return this.productsService.getProductByid(id);
   }
 
   // @Get(':slug')
@@ -42,10 +42,9 @@ export class ProductsController {
   //   return this.productsService.getProductBySlug(slug);
   // }
 
-  @Patch(':id')
+  @Put(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
-    console.log(updateProductDto);
-    return this.productsService.updateProduct(+id, updateProductDto);
+    return this.productsService.updateProduct(id, updateProductDto);
   }
 
   @Delete(':id')

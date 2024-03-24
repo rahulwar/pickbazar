@@ -10,12 +10,17 @@ exports.TypesModule = void 0;
 const common_1 = require("@nestjs/common");
 const types_service_1 = require("./types.service");
 const types_controller_1 = require("./types.controller");
+const mongoose_1 = require("@nestjs/mongoose");
+const types_1 = require("./schema/types");
 let TypesModule = class TypesModule {
 };
 TypesModule = __decorate([
     (0, common_1.Module)({
         controllers: [types_controller_1.TypesController],
         providers: [types_service_1.TypesService],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([{ name: types_1.TypesModel.name, schema: types_1.TypesSchema }]),
+        ],
     })
 ], TypesModule);
 exports.TypesModule = TypesModule;

@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
   app.setGlobalPrefix('api');
+
   app.useGlobalPipes(new ValidationPipe());
 
   const isLocal = process.env.NODE_ENV === 'local';
@@ -17,7 +18,7 @@ async function bootstrap() {
       .addTag('marvel')
       .build();
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('docs', app, document); 
+    SwaggerModule.setup('docs', app, document);
   }
   const PORT = process.env.PORT || 5000;
   await app.listen(PORT);

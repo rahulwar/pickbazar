@@ -41,7 +41,7 @@ let TypesController = class TypesController {
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/type.entity").Type }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_type_dto_1.CreateTypeDto]),

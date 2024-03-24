@@ -99,7 +99,7 @@ let ProductsService = class ProductsService {
         return Object.assign({ data: products }, (0, paginate_1.paginate)(totalProducts, page, limit, products.length, url));
     }
     async getProductByid(id) {
-        const product = await this.Productmodel.findOne({ id: id }).exec();
+        const product = await this.Productmodel.findOne({ slug: id }).exec();
         return product;
     }
     async getPopularProducts({ limit, type_slug, }) {
@@ -121,7 +121,6 @@ let ProductsService = class ProductsService {
         return products;
     }
     async updateProduct(id, updateProductDto) {
-        console.log(id);
         const updatedProduct = await this.Productmodel.updateOne({ id: id }, updateProductDto);
         return updatedProduct;
     }

@@ -7,6 +7,9 @@ import { Category } from './entities/category.entity';
 import Fuse from 'fuse.js';
 import categoriesJson from '@db/categories.json';
 import { paginate } from 'src/common/pagination/paginate';
+import { CategoryModel } from './schema/category';
+import { InjectModel } from '@nestjs/mongoose';
+import mongoose from 'mongoose';
 
 const categories = plainToClass(Category, categoriesJson);
 const options = {
@@ -18,9 +21,13 @@ const fuse = new Fuse(categories, options);
 @Injectable()
 export class CategoriesService {
   private categories: Category[] = categories;
+  constructor(
+    @InjectModel(CategoryModel.name)
+    private Categorymodel: mongoose.Model<CategoryModel>,
+  ) {}
 
-  create(createCategoryDto: CreateCategoryDto) {
-    return this.categories[0];
+  async create(createCategoryDto: CreateCategoryDto) {
+    return await this.Categorymodel.create(createCategoryDto);
   }
 
   getCategories({ limit, page, search, parent }: GetCategoriesDto) {

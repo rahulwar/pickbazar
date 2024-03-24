@@ -2,9 +2,15 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { GetCategoriesDto } from './dto/get-categories.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { Category } from './entities/category.entity';
+import { CategoryModel } from './schema/category';
+import mongoose from 'mongoose';
 export declare class CategoriesService {
+    private Categorymodel;
     private categories;
-    create(createCategoryDto: CreateCategoryDto): Category;
+    constructor(Categorymodel: mongoose.Model<CategoryModel>);
+    create(createCategoryDto: CreateCategoryDto): Promise<mongoose.Document<unknown, {}, CategoryModel> & CategoryModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
     getCategories({ limit, page, search, parent }: GetCategoriesDto): {
         count: number;
         current_page: number;

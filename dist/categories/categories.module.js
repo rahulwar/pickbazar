@@ -10,11 +10,18 @@ exports.CategoriesModule = void 0;
 const common_1 = require("@nestjs/common");
 const categories_service_1 = require("./categories.service");
 const categories_controller_1 = require("./categories.controller");
+const mongoose_1 = require("@nestjs/mongoose");
+const category_1 = require("./schema/category");
 let CategoriesModule = class CategoriesModule {
 };
 CategoriesModule = __decorate([
     (0, common_1.Module)({
         controllers: [categories_controller_1.CategoriesController],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: category_1.CategoryModel.name, schema: category_1.CategorySchema },
+            ]),
+        ],
         providers: [categories_service_1.CategoriesService],
     })
 ], CategoriesModule);

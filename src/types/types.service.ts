@@ -7,6 +7,9 @@ import { Type } from './entities/type.entity';
 import typesJson from '@db/types.json';
 import Fuse from 'fuse.js';
 import { GetTypesDto } from './dto/get-types.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { TypesModel } from './schema/types';
+import mongoose from 'mongoose';
 
 const types = plainToClass(Type, typesJson);
 const options = {
@@ -18,6 +21,10 @@ const fuse = new Fuse(types, options);
 @Injectable()
 export class TypesService {
   private types: Type[] = types;
+  constructor(
+    @InjectModel(TypesModel.name)
+    private Typesmodel: mongoose.Model<TypesModel>,
+  ) {}
 
   getTypes({ text, search }: GetTypesDto) {
     let data: Type[] = this.types;
@@ -52,8 +59,8 @@ export class TypesService {
     return this.types.find((p) => p.slug === slug);
   }
 
-  create(createTypeDto: CreateTypeDto) {
-    return this.types[0];
+  async create(createTypeDto: CreateTypeDto) {
+    return await this.Typesmodel.create(createTypeDto);
   }
 
   findAll() {
