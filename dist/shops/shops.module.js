@@ -10,6 +10,8 @@ exports.ShopsModule = void 0;
 const common_1 = require("@nestjs/common");
 const shops_service_1 = require("./shops.service");
 const shops_controller_1 = require("./shops.controller");
+const mongoose_1 = require("@nestjs/mongoose");
+const shop_1 = require("./schema/shop");
 let ShopsModule = class ShopsModule {
 };
 ShopsModule = __decorate([
@@ -21,6 +23,9 @@ ShopsModule = __decorate([
             shops_controller_1.ApproveShopController,
             shops_controller_1.NearByShopController,
             shops_controller_1.NewShopsController,
+        ],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([{ name: shop_1.ShopModel.name, schema: shop_1.ShopSchema }]),
         ],
         providers: [shops_service_1.ShopsService],
     })

@@ -25,6 +25,7 @@ const paginate_1 = require("../common/pagination/paginate");
 const category_1 = require("./schema/category");
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = __importDefault(require("mongoose"));
+const types_1 = require("../types/schema/types");
 const categories = (0, class_transformer_1.plainToClass)(category_entity_1.Category, categories_json_1.default);
 const options = {
     keys: ['name', 'type.slug'],
@@ -37,37 +38,77 @@ let CategoriesService = class CategoriesService {
         this.categories = categories;
     }
     async create(createCategoryDto) {
-        return await this.Categorymodel.create(createCategoryDto);
+        const newdocs = Object.assign(Object.assign({}, createCategoryDto), { type: createCategoryDto.type_id });
+        delete newdocs.type_id;
+        const newCategory = await this.Categorymodel.create(newdocs);
+        if (newdocs.parent) {
+            const parent = await this.Categorymodel.findById(newdocs.parent);
+            let child = [...parent.children];
+            child.push(newCategory.id);
+            parent.children = [...child];
+            await parent.save();
+        }
+        return newCategory;
     }
-    getCategories({ limit, page, search, parent }) {
-        var _a;
-        if (!page)
-            page = 1;
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        let data = this.categories;
+    async getCategories({ limit, page, search, parent }) {
+        const query = {};
         if (search) {
-            const parseSearchParams = search.split(';');
-            for (const searchParam of parseSearchParams) {
+            const searchParams = search.split(';');
+            for (const searchParam of searchParams) {
                 const [key, value] = searchParam.split(':');
-                data = (_a = fuse.search(value)) === null || _a === void 0 ? void 0 : _a.map(({ item }) => item);
+                query[key] = value;
             }
         }
         if (parent === 'null') {
-            data = data.filter((item) => item.parent === null);
+            query['parent'] = null;
         }
-        const results = data.slice(startIndex, endIndex);
+        const total = await this.Categorymodel.countDocuments(query);
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const results = await this.Categorymodel.find(query)
+            .populate([
+            { path: 'type', model: types_1.TypesModel.name },
+            { path: 'children', model: category_1.CategoryModel.name },
+            { path: 'parent', model: category_1.CategoryModel.name },
+        ])
+            .skip(startIndex)
+            .limit(limit)
+            .exec();
         const url = `/categories?search=${search}&limit=${limit}&parent=${parent}`;
-        return Object.assign({ data: results }, (0, paginate_1.paginate)(data.length, page, limit, results.length, url));
+        return Object.assign({ data: results }, (0, paginate_1.paginate)(total, page, limit, results.length, url));
     }
-    getCategory(param, language) {
-        return this.categories.find((p) => p.id === Number(param) || p.slug === param);
+    async getCategory(param, language) {
+        try {
+            let category = await this.Categorymodel.findOne({ slug: param })
+                .populate([
+                { path: 'type', model: types_1.TypesModel.name },
+                { path: 'children', model: category_1.CategoryModel.name },
+                { path: 'parent', model: category_1.CategoryModel.name },
+            ])
+                .exec();
+            if (!category) {
+                category = await this.Categorymodel.findById(param)
+                    .populate([
+                    { path: 'type', model: types_1.TypesModel.name },
+                    { path: 'children', model: category_1.CategoryModel.name },
+                    { path: 'parent', model: category_1.CategoryModel.name },
+                ])
+                    .exec();
+            }
+            return category;
+        }
+        catch (error) {
+            console.error('Error fetching category:', error);
+            return null;
+        }
     }
-    update(id, updateCategoryDto) {
-        return this.categories[0];
+    async update(id, updateCategoryDto) {
+        console.log(id);
+        await this.Categorymodel.updateOne({ _id: id }, { $set: updateCategoryDto });
+        return this.Categorymodel.findOne({ _id: id });
     }
-    remove(id) {
-        return `This action removes a #${id} category`;
+    async remove(id) {
+        return await this.Categorymodel.deleteOne({ _id: id });
     }
 };
 CategoriesService = __decorate([

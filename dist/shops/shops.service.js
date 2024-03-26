@@ -5,6 +5,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -17,6 +23,9 @@ const shops_json_1 = __importDefault(require("../db/pickbazar/shops.json"));
 const near_shop_json_1 = __importDefault(require("../db/pickbazar/near-shop.json"));
 const fuse_js_1 = __importDefault(require("fuse.js"));
 const paginate_1 = require("../common/pagination/paginate");
+const mongoose_1 = require("@nestjs/mongoose");
+const shop_1 = require("./schema/shop");
+const mongoose_2 = __importDefault(require("mongoose"));
 const shops = (0, class_transformer_1.plainToClass)(shop_entity_1.Shop, shops_json_1.default);
 const nearShops = (0, class_transformer_1.plainToClass)(shop_entity_1.Shop, near_shop_json_1.default);
 const options = {
@@ -25,48 +34,34 @@ const options = {
 };
 const fuse = new fuse_js_1.default(shops, options);
 let ShopsService = class ShopsService {
-    constructor() {
+    constructor(Shopmodel) {
+        this.Shopmodel = Shopmodel;
         this.shops = shops;
         this.nearShops = shops;
     }
-    create(createShopDto) {
-        return this.shops[0];
+    async create(createShopDto) {
+        return await this.Shopmodel.create(createShopDto);
     }
-    getShops({ search, limit, page }) {
-        var _a;
+    async getShops({ search, limit, page }) {
         if (!page)
             page = 1;
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        let data = this.shops;
+        const query = {};
         if (search) {
-            const parseSearchParams = search.split(';');
-            for (const searchParam of parseSearchParams) {
+            const searchParams = search.split(';');
+            for (const searchParam of searchParams) {
                 const [key, value] = searchParam.split(':');
-                data = (_a = fuse.search(value)) === null || _a === void 0 ? void 0 : _a.map(({ item }) => item);
+                query[key] = value;
             }
         }
-        const results = data.slice(startIndex, endIndex);
+        const total = await this.Shopmodel.countDocuments(query);
+        const results = await this.Shopmodel.find(query)
+            .skip(startIndex)
+            .limit(limit)
+            .exec();
         const url = `/shops?search=${search}&limit=${limit}`;
-        return Object.assign({ data: results }, (0, paginate_1.paginate)(data.length, page, limit, results.length, url));
-    }
-    getNewShops({ search, limit, page }) {
-        var _a;
-        if (!page)
-            page = 1;
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        let data = this.shops.filter((shopItem) => Boolean(shopItem.is_active) === false);
-        if (search) {
-            const parseSearchParams = search.split(';');
-            for (const searchParam of parseSearchParams) {
-                const [key, value] = searchParam.split(':');
-                data = (_a = fuse.search(value)) === null || _a === void 0 ? void 0 : _a.map(({ item }) => item);
-            }
-        }
-        const results = data.slice(startIndex, endIndex);
-        const url = `/new-shops?search=${search}&limit=${limit}`;
-        return Object.assign({ data: results }, (0, paginate_1.paginate)(data.length, page, limit, results.length, url));
+        return Object.assign({ data: results }, (0, paginate_1.paginate)(total, page, limit, results.length, url));
     }
     getStaffs({ shop_id, limit, page }) {
         var _a, _b;
@@ -107,7 +102,9 @@ let ShopsService = class ShopsService {
     }
 };
 ShopsService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_1.InjectModel)(shop_1.ShopModel.name)),
+    __metadata("design:paramtypes", [mongoose_2.default.Model])
 ], ShopsService);
 exports.ShopsService = ShopsService;
 //# sourceMappingURL=shops.service.js.map

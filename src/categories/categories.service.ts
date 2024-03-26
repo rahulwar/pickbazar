@@ -10,6 +10,7 @@ import { paginate } from 'src/common/pagination/paginate';
 import { CategoryModel } from './schema/category';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose from 'mongoose';
+import { TypesModel } from 'src/types/schema/types';
 
 const categories = plainToClass(Category, categoriesJson);
 const options = {
@@ -25,53 +26,133 @@ export class CategoriesService {
     @InjectModel(CategoryModel.name)
     private Categorymodel: mongoose.Model<CategoryModel>,
   ) {}
-
   async create(createCategoryDto: CreateCategoryDto) {
-    return await this.Categorymodel.create(createCategoryDto);
+    const newdocs = { ...createCategoryDto, type: createCategoryDto.type_id };
+    delete newdocs.type_id;
+    const newCategory = await this.Categorymodel.create(newdocs);
+    if (newdocs.parent) {
+      const parent = await this.Categorymodel.findById(newdocs.parent);
+      let child = [...parent.children];
+      child.push(newCategory.id);
+      parent.children = [...child];
+      await parent.save();
+    }
+
+    return newCategory;
   }
 
-  getCategories({ limit, page, search, parent }: GetCategoriesDto) {
-    if (!page) page = 1;
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Category[] = this.categories;
+  async getCategories({ limit, page, search, parent }: GetCategoriesDto) {
+    // return await this.Categorymodel.find({})
+    //   .populate({ path: 'type_id', model: TypesModel.name })
+    //   .exec();
+
+    const query = {};
+
+    // if (search) {
+    //   query['$or'] = [
+    //     { name: { $regex: search, $options: 'i' } },
+    //     { details: { $regex: search, $options: 'i' } },
+    //   ];
+    // }
     if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
+      const searchParams = search.split(';');
+      for (const searchParam of searchParams) {
         const [key, value] = searchParam.split(':');
-        // data = data.filter((item) => item[key] === value);
-        data = fuse.search(value)?.map(({ item }) => item);
+        query[key] = value;
       }
     }
-    if (parent === 'null') {
-      data = data.filter((item) => item.parent === null);
-    }
-    // if (text?.replace(/%/g, '')) {
-    //   data = fuse.search(text)?.map(({ item }) => item);
-    // }
-    // if (hasType) {
-    //   data = fuse.search(hasType)?.map(({ item }) => item);
-    // }
 
-    const results = data.slice(startIndex, endIndex);
+    if (parent === 'null') {
+      query['parent'] = null;
+    }
+
+    const total = await this.Categorymodel.countDocuments(query);
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+
+    const results = await this.Categorymodel.find(query)
+      .populate([
+        { path: 'type', model: TypesModel.name },
+        { path: 'children', model: CategoryModel.name },
+        { path: 'parent', model: CategoryModel.name },
+      ])
+      .skip(startIndex)
+      .limit(limit)
+
+      .exec();
+
     const url = `/categories?search=${search}&limit=${limit}&parent=${parent}`;
     return {
       data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(total, page, limit, results.length, url),
     };
+
+    // if (!page) page = 1;
+    // const startIndex = (page - 1) * limit;
+    // const endIndex = page * limit;
+    // let data: Category[] = this.categories;
+    // if (search) {
+    //   const parseSearchParams = search.split(';');
+    //   for (const searchParam of parseSearchParams) {
+    //     const [key, value] = searchParam.split(':');
+    //     // data = data.filter((item) => item[key] === value);
+    //     data = fuse.search(value)?.map(({ item }) => item);
+    //   }
+    // }
+    // if (parent === 'null') {
+    //   data = data.filter((item) => item.parent === null);
+    // }
+    // // if (text?.replace(/%/g, '')) {
+    // //   data = fuse.search(text)?.map(({ item }) => item);
+    // // }
+    // // if (hasType) {
+    // //   data = fuse.search(hasType)?.map(({ item }) => item);
+    // // }
+
+    // const results = data.slice(startIndex, endIndex);
+    // const url = `/categories?search=${search}&limit=${limit}&parent=${parent}`;
+    // return {
+    //   data: results,
+    //   ...paginate(data.length, page, limit, results.length, url),
+    // };
   }
 
-  getCategory(param: string, language: string): Category {
-    return this.categories.find(
-      (p) => p.id === Number(param) || p.slug === param,
+  async getCategory(param: string, language: string): Promise<CategoryModel> {
+    try {
+      let category: any = await this.Categorymodel.findOne({ slug: param })
+        .populate([
+          { path: 'type', model: TypesModel.name },
+          { path: 'children', model: CategoryModel.name },
+          { path: 'parent', model: CategoryModel.name },
+        ])
+        .exec();
+
+      if (!category) {
+        category = await this.Categorymodel.findById(param)
+          .populate([
+            { path: 'type', model: TypesModel.name },
+            { path: 'children', model: CategoryModel.name },
+            { path: 'parent', model: CategoryModel.name },
+          ])
+          .exec();
+      }
+
+      return category;
+    } catch (error) {
+      console.error('Error fetching category:', error);
+      return null;
+    }
+  }
+  async update(id: string, updateCategoryDto: UpdateCategoryDto) {
+    console.log(id);
+    await this.Categorymodel.updateOne(
+      { _id: id },
+      { $set: updateCategoryDto },
     );
+    return this.Categorymodel.findOne({ _id: id });
   }
 
-  update(id: number, updateCategoryDto: UpdateCategoryDto) {
-    return this.categories[0];
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} category`;
+  async remove(id: string) {
+    return await this.Categorymodel.deleteOne({ _id: id });
   }
 }

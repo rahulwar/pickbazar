@@ -12,16 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.CategorySchema = exports.CategoryModel = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-const uuid_1 = require("uuid");
 const category_entity_1 = require("../entities/category.entity");
 const attachment_entity_1 = require("../../common/entities/attachment.entity");
-const type_entity_1 = require("../../types/entities/type.entity");
+const types_1 = require("../../types/schema/types");
 let CategoryModel = class CategoryModel extends mongoose_2.Document {
 };
-__decorate([
-    (0, mongoose_1.Prop)({ default: uuid_1.v4 }),
-    __metadata("design:type", String)
-], CategoryModel.prototype, "id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -51,9 +46,9 @@ __decorate([
     __metadata("design:type", String)
 ], CategoryModel.prototype, "icon", void 0);
 __decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", type_entity_1.Type)
-], CategoryModel.prototype, "type_id", void 0);
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'TypesModel' }),
+    __metadata("design:type", types_1.TypesModel)
+], CategoryModel.prototype, "type", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", Array)
@@ -67,7 +62,16 @@ __decorate([
     __metadata("design:type", Array)
 ], CategoryModel.prototype, "translated_language", void 0);
 CategoryModel = __decorate([
-    (0, mongoose_1.Schema)({ timestamps: true })
+    (0, mongoose_1.Schema)({
+        timestamps: true,
+        toJSON: {
+            transform: (doc, ret) => {
+                ret.id = ret._id;
+                delete ret._id;
+                delete ret.__v;
+            },
+        },
+    })
 ], CategoryModel);
 exports.CategoryModel = CategoryModel;
 exports.CategorySchema = mongoose_1.SchemaFactory.createForClass(CategoryModel);

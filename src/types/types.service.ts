@@ -91,11 +91,11 @@ export class TypesService {
   }
 
   async update(id: string, updateTypeDto: UpdateTypeDto) {
-    await this.Typesmodel.updateOne({ id }, { $set: updateTypeDto });
-    return this.Typesmodel.findOne({ id });
+    await this.Typesmodel.updateOne({ _id: id }, { $set: updateTypeDto });
+    return this.Typesmodel.findOne({ _id: id });
   }
 
   async remove(id: string) {
-    return await this.Typesmodel.deleteOne({ id });
+    return await this.Typesmodel.deleteOne({ _id: id });
   }
 }

@@ -13,14 +13,9 @@ exports.TypesSchema = exports.TypesModel = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const attachment_entity_1 = require("../../common/entities/attachment.entity");
-const uuid_1 = require("uuid");
 const type_entity_1 = require("../entities/type.entity");
 let TypesModel = class TypesModel extends mongoose_2.Document {
 };
-__decorate([
-    (0, mongoose_1.Prop)({ default: uuid_1.v4 }),
-    __metadata("design:type", String)
-], TypesModel.prototype, "id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -58,7 +53,16 @@ __decorate([
     __metadata("design:type", Array)
 ], TypesModel.prototype, "translated_languages", void 0);
 TypesModel = __decorate([
-    (0, mongoose_1.Schema)({ timestamps: true })
+    (0, mongoose_1.Schema)({
+        timestamps: true,
+        toJSON: {
+            transform: (doc, ret) => {
+                ret.id = ret._id;
+                delete ret._id;
+                delete ret.__v;
+            },
+        },
+    })
 ], TypesModel);
 exports.TypesModel = TypesModel;
 exports.TypesSchema = mongoose_1.SchemaFactory.createForClass(TypesModel);

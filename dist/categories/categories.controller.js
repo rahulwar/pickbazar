@@ -33,10 +33,10 @@ let CategoriesController = class CategoriesController {
         return this.categoriesService.getCategory(param, language);
     }
     update(id, updateCategoryDto) {
-        return this.categoriesService.update(+id, updateCategoryDto);
+        return this.categoriesService.update(id, updateCategoryDto);
     }
     remove(id) {
-        return this.categoriesService.remove(+id);
+        return this.categoriesService.remove(id);
     }
 };
 __decorate([
@@ -57,7 +57,7 @@ __decorate([
 ], CategoriesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':param'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/category.entity").Category }),
+    openapi.ApiResponse({ status: 200, type: require("./schema/category").CategoryModel }),
     __param(0, (0, common_1.Param)('param')),
     __param(1, (0, common_1.Query)('language')),
     __metadata("design:type", Function),
@@ -66,7 +66,7 @@ __decorate([
 ], CategoriesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/category.entity").Category }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -75,7 +75,7 @@ __decorate([
 ], CategoriesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

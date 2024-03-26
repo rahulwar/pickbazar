@@ -9,6 +9,9 @@ import Fuse from 'fuse.js';
 import { GetShopsDto } from './dto/get-shops.dto';
 import { paginate } from 'src/common/pagination/paginate';
 import { GetStaffsDto } from './dto/get-staffs.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { ShopModel } from './schema/shop';
+import mongoose from 'mongoose';
 
 const shops = plainToClass(Shop, shopsJson);
 const nearShops = plainToClass(Shop, nearShopJson);
@@ -22,59 +25,46 @@ const fuse = new Fuse(shops, options);
 export class ShopsService {
   private shops: Shop[] = shops;
   private nearShops: Shop[] = shops;
+  constructor(
+    @InjectModel(ShopModel.name)
+    private Shopmodel: mongoose.Model<ShopModel>,
+  ) {}
 
-  create(createShopDto: CreateShopDto) {
-    return this.shops[0];
+  async create(createShopDto: CreateShopDto) {
+    return await this.Shopmodel.create(createShopDto);
   }
 
-  getShops({ search, limit, page }: GetShopsDto) {
+  async getShops({ search, limit, page }: GetShopsDto) {
     if (!page) page = 1;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let data: Shop[] = this.shops;
+    // let data: Shop[] = this.shops;
+    const query: any = {};
+
     if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
+      const searchParams = search.split(';');
+      for (const searchParam of searchParams) {
         const [key, value] = searchParam.split(':');
-        // data = data.filter((item) => item[key] === value);
-        data = fuse.search(value)?.map(({ item }) => item);
+        query[key] = value;
       }
     }
+    const total = await this.Shopmodel.countDocuments(query);
+
     // if (text?.replace(/%/g, '')) {
     //   data = fuse.search(text)?.map(({ item }) => item);
     // }
-    const results = data.slice(startIndex, endIndex);
+    // const results = data.slice(startIndex, endIndex);
+    const results = await this.Shopmodel.find(query)
+      .skip(startIndex)
+      .limit(limit)
+      .exec();
+
     const url = `/shops?search=${search}&limit=${limit}`;
 
     return {
       data: results,
-      ...paginate(data.length, page, limit, results.length, url),
-    };
-  }
-
-  getNewShops({ search, limit, page }: GetShopsDto) {
-    if (!page) page = 1;
-
-    const startIndex = (page - 1) * limit;
-    const endIndex = page * limit;
-    let data: Shop[] = this.shops.filter(
-      (shopItem) => Boolean(shopItem.is_active) === false,
-    );
-
-    if (search) {
-      const parseSearchParams = search.split(';');
-      for (const searchParam of parseSearchParams) {
-        const [key, value] = searchParam.split(':');
-        data = fuse.search(value)?.map(({ item }) => item);
-      }
-    }
-    const results = data.slice(startIndex, endIndex);
-    const url = `/new-shops?search=${search}&limit=${limit}`;
-
-    return {
-      data: results,
-      ...paginate(data.length, page, limit, results.length, url),
+      ...paginate(total, page, limit, results.length, url),
     };
   }
 

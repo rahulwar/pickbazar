@@ -1,13 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { Attachment } from 'src/common/entities/attachment.entity';
-import { v4 as uuidv4 } from 'uuid';
 import { Banner, TypeSettings } from '../entities/type.entity';
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: {
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    },
+  },
+})
 export class TypesModel extends Document {
-  @Prop({ default: uuidv4 })
-  id: string;
+  // @Prop({ default: uuidv4 })
+  // id: string;
 
   @Prop({ required: true })
   name: string;

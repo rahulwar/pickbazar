@@ -33,7 +33,7 @@ export declare class CategoriesController {
     create(createCategoryDto: CreateCategoryDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/category").CategoryModel> & import("./schema/category").CategoryModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    findAll(query: GetCategoriesDto): {
+    findAll(query: GetCategoriesDto): Promise<{
         count: number;
         current_page: number;
         firstItem: number;
@@ -45,9 +45,13 @@ export declare class CategoriesController {
         last_page_url: string;
         next_page_url: string;
         prev_page_url: string;
-        data: import("./entities/category.entity").Category[];
-    };
-    findOne(param: string, language: string): import("./entities/category.entity").Category;
-    update(id: string, updateCategoryDto: UpdateCategoryDto): import("./entities/category.entity").Category;
-    remove(id: string): string;
+        data: Omit<import("mongoose").Document<unknown, {}, import("./schema/category").CategoryModel> & import("./schema/category").CategoryModel & {
+            _id: import("mongoose").Types.ObjectId;
+        }, never>[];
+    }>;
+    findOne(param: string, language: string): Promise<import("./schema/category").CategoryModel>;
+    update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/category").CategoryModel> & import("./schema/category").CategoryModel & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
+    remove(id: string): Promise<import("mongodb").DeleteResult>;
 }

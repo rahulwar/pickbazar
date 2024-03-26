@@ -1,7 +1,6 @@
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { GetCategoriesDto } from './dto/get-categories.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { Category } from './entities/category.entity';
 import { CategoryModel } from './schema/category';
 import mongoose from 'mongoose';
 export declare class CategoriesService {
@@ -11,7 +10,7 @@ export declare class CategoriesService {
     create(createCategoryDto: CreateCategoryDto): Promise<mongoose.Document<unknown, {}, CategoryModel> & CategoryModel & {
         _id: mongoose.Types.ObjectId;
     }>;
-    getCategories({ limit, page, search, parent }: GetCategoriesDto): {
+    getCategories({ limit, page, search, parent }: GetCategoriesDto): Promise<{
         count: number;
         current_page: number;
         firstItem: number;
@@ -23,9 +22,13 @@ export declare class CategoriesService {
         last_page_url: string;
         next_page_url: string;
         prev_page_url: string;
-        data: Category[];
-    };
-    getCategory(param: string, language: string): Category;
-    update(id: number, updateCategoryDto: UpdateCategoryDto): Category;
-    remove(id: number): string;
+        data: Omit<mongoose.Document<unknown, {}, CategoryModel> & CategoryModel & {
+            _id: mongoose.Types.ObjectId;
+        }, never>[];
+    }>;
+    getCategory(param: string, language: string): Promise<CategoryModel>;
+    update(id: string, updateCategoryDto: UpdateCategoryDto): Promise<mongoose.Document<unknown, {}, CategoryModel> & CategoryModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    remove(id: string): Promise<mongoose.mongo.DeleteResult>;
 }

@@ -23,25 +23,31 @@
 /// <reference types="mongoose/types/virtuals" />
 /// <reference types="mongoose/types/inferschematype" />
 import { Document, Types } from 'mongoose';
-import { Category } from '../entities/category.entity';
+import { User } from 'src/users/entities/user.entity';
+import { Balance, ShopSettings } from '../entities/shop.entity';
 import { Attachment } from 'src/common/entities/attachment.entity';
-import { Product } from 'src/products/entities/product.entity';
-import { TypesModel } from 'src/types/schema/types';
-export declare class CategoryModel extends Document {
+import { UserAddress } from 'src/addresses/entities/address.entity';
+export declare class ShopModel extends Document {
+    owner_id: number;
+    owner: User;
+    staffs: User[];
+    is_active: boolean;
+    orders_count: number;
+    products_count: number;
+    balance: Balance;
     name: string;
     slug: string;
-    parent: Category;
-    children: Category[];
-    details: string;
-    image: Attachment;
-    icon: string;
-    type: TypesModel;
-    products: Product[];
-    language: string;
-    translated_language: string[];
+    description: string;
+    cover_image: Attachment;
+    logo: Attachment;
+    address: UserAddress;
+    settings: ShopSettings;
+    distance: string;
+    lat: string;
+    lng: string;
 }
-export declare const CategorySchema: import("mongoose").Schema<CategoryModel, import("mongoose").Model<CategoryModel, any, any, any, Document<unknown, any, CategoryModel> & CategoryModel & {
+export declare const ShopSchema: import("mongoose").Schema<ShopModel, import("mongoose").Model<ShopModel, any, any, any, Document<unknown, any, ShopModel> & ShopModel & {
     _id: Types.ObjectId;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, CategoryModel, Document<unknown, {}, import("mongoose").FlatRecord<CategoryModel>> & import("mongoose").FlatRecord<CategoryModel> & {
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, ShopModel, Document<unknown, {}, import("mongoose").FlatRecord<ShopModel>> & import("mongoose").FlatRecord<ShopModel> & {
     _id: Types.ObjectId;
 }>;

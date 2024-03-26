@@ -1,15 +1,25 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
+import { Document, model, Types } from 'mongoose';
+// import { v4 as uuidv4 } from 'uuid';
 import { Category } from '../entities/category.entity';
 import { Attachment } from 'src/common/entities/attachment.entity';
-import { Type } from 'src/types/entities/type.entity';
-import { Product } from 'src/products/entities/product.entity';
 
-@Schema({ timestamps: true })
+import { Product } from 'src/products/entities/product.entity';
+import { TypesModel } from 'src/types/schema/types';
+
+@Schema({
+  timestamps: true,
+  toJSON: {
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    },
+  },
+})
 export class CategoryModel extends Document {
-  @Prop({ default: uuidv4 })
-  id: string;
+  // @Prop({ default: uuidv4 })
+  // id: string;
 
   @Prop({ required: true })
   name: string;
@@ -32,8 +42,8 @@ export class CategoryModel extends Document {
   @Prop()
   icon: string;
 
-  @Prop()
-  type_id: Type;
+  @Prop({ type: Types.ObjectId, ref: 'TypesModel' })
+  type: TypesModel;
 
   @Prop()
   products: Product[];

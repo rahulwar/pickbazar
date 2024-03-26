@@ -8,6 +8,8 @@ import {
   NearByShopController,
   NewShopsController,
 } from './shops.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import { ShopModel, ShopSchema } from './schema/shop';
 
 @Module({
   controllers: [
@@ -17,6 +19,9 @@ import {
     ApproveShopController,
     NearByShopController,
     NewShopsController,
+  ],
+  imports: [
+    MongooseModule.forFeature([{ name: ShopModel.name, schema: ShopSchema }]),
   ],
   providers: [ShopsService],
 })

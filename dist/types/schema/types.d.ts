@@ -26,7 +26,6 @@ import { Document } from 'mongoose';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { Banner, TypeSettings } from '../entities/type.entity';
 export declare class TypesModel extends Document {
-    id: string;
     name: string;
     slug: string;
     image: Attachment;
