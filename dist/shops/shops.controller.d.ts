@@ -26,7 +26,6 @@
 import { ShopsService } from './shops.service';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
-import { GetShopsDto, ShopPaginator } from './dto/get-shops.dto';
 import { GetStaffsDto } from './dto/get-staffs.dto';
 import { UserPaginator } from 'src/users/dto/get-users.dto';
 export declare class ShopsController {
@@ -35,7 +34,6 @@ export declare class ShopsController {
     create(createShopDto: CreateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    getShops(query: GetShopsDto): Promise<ShopPaginator>;
     getShop(slug: string): Promise<import("./entities/shop.entity").Shop>;
     update(id: string, updateShopDto: UpdateShopDto): import("./entities/shop.entity").Shop;
     remove(id: string): string;
@@ -71,5 +69,4 @@ export declare class NearByShopController {
 export declare class NewShopsController {
     private shopsService;
     constructor(shopsService: ShopsService);
-    getNewShops(query: GetShopsDto): Promise<ShopPaginator>;
 }

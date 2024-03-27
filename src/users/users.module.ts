@@ -9,6 +9,8 @@ import {
   UsersController,
   VendorController,
 } from './users.controller';
+import { MongooseModule } from '@nestjs/mongoose';
+import { UsersModel, UsersSchema } from './schema/user';
 
 @Module({
   controllers: [
@@ -20,7 +22,10 @@ import {
     AllStaffsController,
     AllCustomerController,
   ],
-  providers: [UsersService],
   exports: [UsersService],
+  imports: [
+    MongooseModule.forFeature([{ name: UsersModel.name, schema: UsersSchema }]),
+  ],
+  providers: [UsersService],
 })
 export class UsersModule {}

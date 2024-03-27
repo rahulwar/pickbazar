@@ -17,6 +17,7 @@ const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const create_auth_dto_1 = require("./dto/create-auth.dto");
+const JwtAuthGuard_1 = require("../middleware/JwtAuthGuard");
 let AuthController = class AuthController {
     constructor(authService) {
         this.authService = authService;
@@ -57,7 +58,7 @@ let AuthController = class AuthController {
     me() {
         return this.authService.me();
     }
-    addWalletPoints(addPointsDto) {
+    addWalletPoints(addPointsDto, request) {
         return this.authService.me();
     }
     contactUs(addPointsDto) {
@@ -156,6 +157,7 @@ __decorate([
 ], AuthController.prototype, "verifyForgetPassword", null);
 __decorate([
     (0, common_1.Get)('me'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard),
     openapi.ApiResponse({ status: 200, type: require("../users/entities/user.entity").User }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
@@ -163,10 +165,12 @@ __decorate([
 ], AuthController.prototype, "me", null);
 __decorate([
     (0, common_1.Post)('add-points'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard),
     openapi.ApiResponse({ status: 201, type: require("../users/entities/user.entity").User }),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "addWalletPoints", null);
 __decorate([

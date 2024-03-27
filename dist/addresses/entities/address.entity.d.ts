@@ -1,5 +1,5 @@
 import { CoreEntity } from 'src/common/entities/core.entity';
-import { User } from 'src/users/entities/user.entity';
+import { UsersModel } from 'src/users/schema/user';
 export declare enum AddressType {
     BILLING = "billing",
     SHIPPING = "shipping"
@@ -9,7 +9,7 @@ export declare class Address extends CoreEntity {
     default: boolean;
     address: UserAddress;
     type: AddressType;
-    customer: User;
+    customer: UsersModel;
 }
 export declare class UserAddress {
     street_address: string;

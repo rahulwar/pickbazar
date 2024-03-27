@@ -19,6 +19,7 @@ import {
   StripePaymentIntent,
   StripePaymentMethod,
 } from './entity/stripe.entity';
+import { UsersModel } from 'src/users/schema/user';
 
 const paymentGateways = plainToClass(PaymentGateWay, paymentGatewayJson);
 const setting = plainToClass(Setting, settingJson);

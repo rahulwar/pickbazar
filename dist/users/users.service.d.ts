@@ -2,9 +2,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { GetUsersDto, UserPaginator } from './dto/get-users.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
+import { UsersModel } from './schema/user';
+import mongoose from 'mongoose';
 export declare class UsersService {
+    private Usermodel;
     private users;
-    create(createUserDto: CreateUserDto): User;
+    constructor(Usermodel: mongoose.Model<UsersModel>);
+    create(createUserDto: CreateUserDto): Promise<User>;
     getUsers({ text, limit, page, search, }: GetUsersDto): Promise<UserPaginator>;
     getUsersNotify({ limit }: GetUsersDto): User[];
     findOne(id: number): User;

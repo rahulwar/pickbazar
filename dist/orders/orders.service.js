@@ -225,7 +225,7 @@ let OrdersService = class OrdersService {
         return paymentIntentInfo;
     }
     async savePaymentIntent(order, paymentGateway) {
-        const me = this.authService.me();
+        const me = await this.authService.me();
         switch (order.payment_gateway) {
             case order_entity_1.PaymentGatewayType.STRIPE:
                 const paymentIntentParam = await this.stripeService.makePaymentIntentParam(order, me);

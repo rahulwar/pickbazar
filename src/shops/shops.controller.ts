@@ -24,10 +24,10 @@ export class ShopsController {
     return this.shopsService.create(createShopDto);
   }
 
-  @Get()
-  async getShops(@Query() query: GetShopsDto): Promise<ShopPaginator> {
-    return this.shopsService.getShops(query);
-  }
+  // @Get()
+  // async getShops(@Query() query: GetShopsDto): Promise<ShopPaginator> {
+  //   return this.shopsService.getShops(query);
+  // }
 
   @Get(':slug')
   async getShop(@Param('slug') slug: string) {
@@ -119,8 +119,8 @@ export class NearByShopController {
 export class NewShopsController {
   constructor(private shopsService: ShopsService) {}
 
-  @Get()
-  async getNewShops(@Query() query: GetShopsDto): Promise<ShopPaginator> {
-    return this.shopsService.getNewShops(query);
-  }
+  // @Get()
+  // async getNewShops(@Query() query: GetShopsDto): Promise<ShopPaginator> {
+  //   return this.shopsService.getNewShops(query);
+  // }
 }

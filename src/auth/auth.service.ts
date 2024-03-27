@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Req } from '@nestjs/common';
 import {
   AuthResponse,
   ChangePasswordDto,
@@ -18,19 +18,49 @@ import { v4 as uuidv4 } from 'uuid';
 import { plainToClass } from 'class-transformer';
 import { User } from 'src/users/entities/user.entity';
 import usersJson from '@db/users.json';
+import { InjectModel } from '@nestjs/mongoose';
+import { UsersModel } from 'src/users/schema/user';
+import mongoose from 'mongoose';
+import { JwtService } from '@nestjs/jwt';
 const users = plainToClass(User, usersJson);
 
 @Injectable()
 export class AuthService {
+  constructor(
+    private jwtService: JwtService,
+    @InjectModel(UsersModel.name)
+    private userModel: mongoose.Model<UsersModel>,
+  ) {}
   private users: User[] = users;
   async register(createUserInput: RegisterDto): Promise<AuthResponse> {
-    const user: User = {
-      id: uuidv4(),
-      ...users[0],
+    let newObj = {
       ...createUserInput,
-      created_at: new Date(),
-      updated_at: new Date(),
+      permissions: [createUserInput.permission],
     };
+    delete newObj.permission;
+    let user;
+    user = await this.userModel.findOne({ email: createUserInput.email });
+    if (!user) {
+      user = await this.userModel.create(newObj);
+    }
+    const payload = {
+      email: user.email,
+      sub: user.id,
+    };
+    const token = this.jwtService.sign(payload);
+
+    return {
+      token: token,
+      permissions: [createUserInput.permission],
+    };
+
+    // const user: User = {
+    //   id: uuidv4(),
+    //   ...users[0],
+    //   ...createUserInput,
+    //   created_at: new Date(),
+    //   updated_at: new Date(),
+    // };
 
     this.users.push(user);
     return {
@@ -39,32 +69,53 @@ export class AuthService {
     };
   }
   async login(loginInput: LoginDto): Promise<AuthResponse> {
-    console.log(loginInput);
-    if (loginInput.email === 'admin@demo.com') {
+    const user = await this.userModel.findOne({ email: loginInput.email });
+    if (!user) {
       return {
-        token: 'jwt token',
-        permissions: ['store_owner', 'super_admin'],
-        role: 'super_admin',
-      };
-    } else if (['store_owner@demo.com', 'vendor@demo.com'].includes(loginInput.email)) {
-      return {
-        token: 'jwt token',
-        permissions: ['store_owner', 'customer'],
-        role: 'store_owner',
-      };
-    } else {
-      return {
-        token: 'jwt token',
-        permissions: ['customer'],
-        role: 'customer',
+        token: '',
+        permissions: [],
+        role: '',
       };
     }
+    if (user.password !== loginInput.password) {
+      return {
+        token: '',
+        permissions: [],
+        role: '',
+      };
+    }
+    const payload = { email: user.email, sub: user.id };
+    const jwtToken = this.jwtService.sign(payload);
+    console.log(jwtToken);
+    return {
+      token: jwtToken,
+      permissions: user.permissions,
+    };
+    // if (loginInput.email === 'admin@demo.com') {
+    //   return {
+    //     token: 'jwt token',
+    //     permissions: ['store_owner', 'super_admin'],
+    //     role: 'super_admin',
+    //   };
+    // } else if (
+    //   ['store_owner@demo.com', 'vendor@demo.com'].includes(loginInput.email)
+    // ) {
+    //   return {
+    //     token: 'jwt token',
+    //     permissions: ['store_owner', 'customer'],
+    //     role: 'store_owner',
+    //   };
+    // } else {
+    //   return {
+    //     token: 'jwt token',
+    //     permissions: ['customer'],
+    //     role: 'customer',
+    //   };
+    // }
   }
   async changePassword(
     changePasswordInput: ChangePasswordDto,
   ): Promise<CoreResponse> {
-    console.log(changePasswordInput);
-
     return {
       success: true,
       message: 'Password change successful',
@@ -73,8 +124,6 @@ export class AuthService {
   async forgetPassword(
     forgetPasswordInput: ForgetPasswordDto,
   ): Promise<CoreResponse> {
-    console.log(forgetPasswordInput);
-
     return {
       success: true,
       message: 'Password change successful',
@@ -83,8 +132,6 @@ export class AuthService {
   async verifyForgetPasswordToken(
     verifyForgetPasswordTokenInput: VerifyForgetPasswordDto,
   ): Promise<CoreResponse> {
-    console.log(verifyForgetPasswordTokenInput);
-
     return {
       success: true,
       message: 'Password change successful',
@@ -93,15 +140,12 @@ export class AuthService {
   async resetPassword(
     resetPasswordInput: ResetPasswordDto,
   ): Promise<CoreResponse> {
-    console.log(resetPasswordInput);
-
     return {
       success: true,
       message: 'Password change successful',
     };
   }
   async socialLogin(socialLoginDto: SocialLoginDto): Promise<AuthResponse> {
-    console.log(socialLoginDto);
     return {
       token: 'jwt token',
       permissions: ['super_admin', 'customer'],
@@ -109,7 +153,6 @@ export class AuthService {
     };
   }
   async otpLogin(otpLoginDto: OtpLoginDto): Promise<AuthResponse> {
-    console.log(otpLoginDto);
     return {
       token: 'jwt token',
       permissions: ['super_admin', 'customer'],
@@ -117,14 +160,12 @@ export class AuthService {
     };
   }
   async verifyOtpCode(verifyOtpInput: VerifyOtpDto): Promise<CoreResponse> {
-    console.log(verifyOtpInput);
     return {
       message: 'success',
       success: true,
     };
   }
   async sendOtpCode(otpInput: OtpDto): Promise<OtpResponse> {
-    console.log(otpInput);
     return {
       message: 'success',
       success: true,
@@ -151,7 +192,12 @@ export class AuthService {
   // public getUser(getUserArgs: GetUserArgs): User {
   //   return this.users.find((user) => user.id === getUserArgs.id);
   // }
-  me(): User {
+  me(@Req() request?: any): User {
+    // if (request && request.user && request.user.email) {
+    // return await this.userModel.findOne({ email: request.user.email });
+    // } else {
+    // throw new Error('Invalid request');
+    // }
     return this.users[0];
   }
 

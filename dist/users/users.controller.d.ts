@@ -7,7 +7,7 @@ import { GetUsersDto } from './dto/get-users.dto';
 export declare class UsersController {
     private readonly usersService;
     constructor(usersService: UsersService);
-    createUser(createUserDto: CreateUserDto): import("./entities/user.entity").User;
+    createUser(createUserDto: CreateUserDto): Promise<import("./entities/user.entity").User>;
     getAllUsers(query: GetUsersDto): Promise<import("./dto/get-users.dto").UserPaginator>;
     getUser(id: string): import("./entities/user.entity").User;
     updateUser(id: string, updateUserDto: UpdateUserDto): import("./entities/user.entity").User;

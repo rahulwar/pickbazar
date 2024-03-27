@@ -7,11 +7,11 @@ export declare class TagsController {
     constructor(tagsService: TagsService);
     create(createTagDto: CreateTagDto): {
         name: string;
-        details: string;
-        image: import("../common/entities/attachment.entity").Attachment;
-        icon: string;
         type: import("../types/entities/type.entity").Type;
         language: string;
+        details: string;
+        icon: string;
+        image: import("../common/entities/attachment.entity").Attachment;
         id: number;
     };
     findAll(query: GetTagsDto): Promise<TagPaginator>;

@@ -122,7 +122,7 @@ let PaymentMethodService = class PaymentMethodService {
     }
     async makeNewPaymentMethodObject(createPaymentMethodDto, paymentGateway) {
         const { method_key, default_card } = createPaymentMethodDto;
-        const { id: user_id, name, email } = this.authService.me();
+        const { id: user_id, name, email } = await this.authService.me();
         const listofCustomer = await this.stripeService.listAllCustomer();
         let currentCustomer = listofCustomer.data.find((customer) => customer.email === email);
         if (!currentCustomer) {

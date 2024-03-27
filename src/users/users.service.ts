@@ -1,4 +1,3 @@
-import { Injectable } from '@nestjs/common';
 import { plainToClass } from 'class-transformer';
 import { CreateUserDto } from './dto/create-user.dto';
 import { GetUsersDto, UserPaginator } from './dto/get-users.dto';
@@ -7,6 +6,10 @@ import Fuse from 'fuse.js';
 import { User } from './entities/user.entity';
 import usersJson from '@db/users.json';
 import { paginate } from 'src/common/pagination/paginate';
+import { UsersModel } from './schema/user';
+import { InjectModel } from '@nestjs/mongoose';
+import { Injectable } from '@nestjs/common';
+import mongoose from 'mongoose';
 
 const users = plainToClass(User, usersJson);
 
@@ -19,8 +22,13 @@ const fuse = new Fuse(users, options);
 @Injectable()
 export class UsersService {
   private users: User[] = users;
+  constructor(
+    @InjectModel(UsersModel.name)
+    private Usermodel: mongoose.Model<UsersModel>,
+  ) {}
 
-  create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto) {
+    // const user = await this.Usermodel.find();
     return this.users[0];
   }
 

@@ -18,7 +18,6 @@ const common_1 = require("@nestjs/common");
 const shops_service_1 = require("./shops.service");
 const create_shop_dto_1 = require("./dto/create-shop.dto");
 const update_shop_dto_1 = require("./dto/update-shop.dto");
-const get_shops_dto_1 = require("./dto/get-shops.dto");
 const get_staffs_dto_1 = require("./dto/get-staffs.dto");
 let ShopsController = class ShopsController {
     constructor(shopsService) {
@@ -26,9 +25,6 @@ let ShopsController = class ShopsController {
     }
     create(createShopDto) {
         return this.shopsService.create(createShopDto);
-    }
-    async getShops(query) {
-        return this.shopsService.getShops(query);
     }
     async getShop(slug) {
         return this.shopsService.getShop(slug);
@@ -54,14 +50,6 @@ __decorate([
     __metadata("design:paramtypes", [create_shop_dto_1.CreateShopDto]),
     __metadata("design:returntype", void 0)
 ], ShopsController.prototype, "create", null);
-__decorate([
-    (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: require("./dto/get-shops.dto").ShopPaginator }),
-    __param(0, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [get_shops_dto_1.GetShopsDto]),
-    __metadata("design:returntype", Promise)
-], ShopsController.prototype, "getShops", null);
 __decorate([
     (0, common_1.Get)(':slug'),
     openapi.ApiResponse({ status: 200, type: require("./entities/shop.entity").Shop }),
@@ -242,18 +230,7 @@ let NewShopsController = class NewShopsController {
     constructor(shopsService) {
         this.shopsService = shopsService;
     }
-    async getNewShops(query) {
-        return this.shopsService.getNewShops(query);
-    }
 };
-__decorate([
-    (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: require("./dto/get-shops.dto").ShopPaginator }),
-    __param(0, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [get_shops_dto_1.GetShopsDto]),
-    __metadata("design:returntype", Promise)
-], NewShopsController.prototype, "getNewShops", null);
 NewShopsController = __decorate([
     (0, common_1.Controller)('new-shops'),
     __metadata("design:paramtypes", [shops_service_1.ShopsService])

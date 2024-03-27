@@ -10,7 +10,7 @@ var AddressType;
 })(AddressType = exports.AddressType || (exports.AddressType = {}));
 class Address extends core_entity_1.CoreEntity {
     static _OPENAPI_METADATA_FACTORY() {
-        return { title: { required: true, type: () => String }, default: { required: true, type: () => Boolean }, address: { required: true, type: () => require("./address.entity").UserAddress }, type: { required: true, enum: require("./address.entity").AddressType }, customer: { required: true, type: () => require("../../users/entities/user.entity").User } };
+        return { title: { required: true, type: () => String }, default: { required: true, type: () => Boolean }, address: { required: true, type: () => require("./address.entity").UserAddress }, type: { required: true, enum: require("./address.entity").AddressType }, customer: { required: true, type: () => require("../../users/schema/user").UsersModel } };
     }
 }
 exports.Address = Address;

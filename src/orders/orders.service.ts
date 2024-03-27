@@ -340,7 +340,7 @@ export class OrdersService {
    * @param paymentGateway
    */
   async savePaymentIntent(order: Order, paymentGateway?: string): Promise<any> {
-    const me = this.authService.me();
+    const me = await this.authService.me();
     switch (order.payment_gateway) {
       case PaymentGatewayType.STRIPE:
         const paymentIntentParam =
