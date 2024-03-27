@@ -5,8 +5,8 @@ import { MimeType } from 'aws-sdk/clients/bedrockagentruntime';
 @Injectable()
 export class UploadsService {
   private s3 = new AWS.S3({
-    accessKeyId: 'AKIA5LNTH6JVTLY46TWD',
-    secretAccessKey: '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',
+    accessKeyId: process.env.ACCESS_KEY_ID,
+    secretAccessKey: process.env.SECRET_ACCESS_KEY,
   });
 
   async uploadFiles(files: Array<Express.Multer.File>) {
