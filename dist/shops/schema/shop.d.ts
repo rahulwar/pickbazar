@@ -23,14 +23,14 @@
 /// <reference types="mongoose/types/virtuals" />
 /// <reference types="mongoose/types/inferschematype" />
 import { Document, Types } from 'mongoose';
-import { User } from 'src/users/entities/user.entity';
 import { Balance, ShopSettings } from '../entities/shop.entity';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { UserAddress } from 'src/addresses/entities/address.entity';
+import { UsersModel } from 'src/users/schema/user';
 export declare class ShopModel extends Document {
     owner_id: number;
-    owner: User;
-    staffs: User[];
+    owner: UsersModel;
+    staffs: UsersModel[];
     is_active: boolean;
     orders_count: number;
     products_count: number;
@@ -42,7 +42,7 @@ export declare class ShopModel extends Document {
     logo: Attachment;
     address: UserAddress;
     settings: ShopSettings;
-    distance: string;
+    distance: number;
     lat: string;
     lng: string;
 }

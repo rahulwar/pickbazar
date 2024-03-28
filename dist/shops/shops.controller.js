@@ -30,16 +30,16 @@ let ShopsController = class ShopsController {
         return this.shopsService.getShop(slug);
     }
     update(id, updateShopDto) {
-        return this.shopsService.update(+id, updateShopDto);
+        return this.shopsService.update(id, updateShopDto);
     }
     remove(id) {
-        return this.shopsService.remove(+id);
+        return this.shopsService.remove(id);
     }
     approveShop(id) {
-        return this.shopsService.approve(+id);
+        return this.shopsService.approve(id);
     }
     disapproveShop(id) {
-        return this.shopsService.approve(+id);
+        return this.shopsService.approve(id);
     }
 };
 __decorate([
@@ -52,7 +52,7 @@ __decorate([
 ], ShopsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(':slug'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/shop.entity").Shop }),
+    openapi.ApiResponse({ status: 200, type: require("./schema/shop").ShopModel }),
     __param(0, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -60,7 +60,7 @@ __decorate([
 ], ShopsController.prototype, "getShop", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/shop.entity").Shop }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -69,7 +69,7 @@ __decorate([
 ], ShopsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -110,10 +110,10 @@ let StaffsController = class StaffsController {
         return this.shopsService.getShop(slug);
     }
     update(id, updateShopDto) {
-        return this.shopsService.update(+id, updateShopDto);
+        return this.shopsService.update(id, updateShopDto);
     }
     remove(id) {
-        return this.shopsService.remove(+id);
+        return this.shopsService.remove(id);
     }
 };
 __decorate([
@@ -126,7 +126,7 @@ __decorate([
 ], StaffsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: require("../users/dto/get-users.dto").UserPaginator }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [get_staffs_dto_1.GetStaffsDto]),
@@ -134,7 +134,7 @@ __decorate([
 ], StaffsController.prototype, "getStaffs", null);
 __decorate([
     (0, common_1.Get)(':slug'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/shop.entity").Shop }),
+    openapi.ApiResponse({ status: 200, type: require("./schema/shop").ShopModel }),
     __param(0, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -142,7 +142,7 @@ __decorate([
 ], StaffsController.prototype, "getShop", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/shop.entity").Shop }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -151,7 +151,7 @@ __decorate([
 ], StaffsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -172,7 +172,7 @@ let DisapproveShopController = class DisapproveShopController {
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/shop.entity").Shop }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -193,7 +193,7 @@ let ApproveShopController = class ApproveShopController {
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/shop.entity").Shop }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -214,7 +214,7 @@ let NearByShopController = class NearByShopController {
 };
 __decorate([
     (0, common_1.Get)(':lat/:lng'),
-    openapi.ApiResponse({ status: 200, type: [require("./entities/shop.entity").Shop] }),
+    openapi.ApiResponse({ status: 200, type: [require("./schema/shop").ShopModel] }),
     __param(0, (0, common_1.Param)('lat')),
     __param(1, (0, common_1.Param)('lng')),
     __metadata("design:type", Function),

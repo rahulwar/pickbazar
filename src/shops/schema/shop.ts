@@ -4,6 +4,7 @@ import { User } from 'src/users/entities/user.entity';
 import { Balance, ShopSettings } from '../entities/shop.entity';
 import { Attachment } from 'src/common/entities/attachment.entity';
 import { UserAddress } from 'src/addresses/entities/address.entity';
+import { UsersModel } from 'src/users/schema/user';
 
 @Schema({
   timestamps: true,
@@ -19,11 +20,11 @@ export class ShopModel extends Document {
   @Prop()
   owner_id: number;
 
-  @Prop()
-  owner: User;
+  @Prop({ type: Types.ObjectId, ref: 'UsersModel' })
+  owner: UsersModel;
 
-  @Prop()
-  staffs: User[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'UsersModel' }] })
+  staffs: UsersModel[];
 
   @Prop()
   is_active: boolean;
@@ -59,7 +60,7 @@ export class ShopModel extends Document {
   settings: ShopSettings;
 
   @Prop()
-  distance: string;
+  distance: number;
 
   @Prop()
   lat: string;

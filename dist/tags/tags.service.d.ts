@@ -5,11 +5,11 @@ import { Tag } from './entities/tag.entity';
 export declare class TagsService {
     private tags;
     create(createTagDto: CreateTagDto): {
-        name: string;
         type: import("../types/entities/type.entity").Type;
+        name: string;
+        icon: string;
         language: string;
         details: string;
-        icon: string;
         image: import("../common/entities/attachment.entity").Attachment;
         id: number;
     };

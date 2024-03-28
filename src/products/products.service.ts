@@ -16,6 +16,9 @@ import { GetPopularProductsDto } from './dto/get-popular-products.dto';
 import { GetBestSellingProductsDto } from './dto/get-best-selling-products.dto';
 import { UploadsService } from 'src/uploads/uploads.service';
 import { Document } from 'mongoose';
+import { TypesModel } from 'src/types/schema/types';
+import { CategoryModel } from 'src/categories/schema/category';
+import { ShopModel } from 'src/shops/schema/shop';
 const products = plainToInstance(Product, productsJson);
 const popularProducts = plainToInstance(Product, popularProductsJson);
 const bestSellingProducts = plainToInstance(Product, bestSellingProductsJson);
@@ -70,6 +73,11 @@ export class ProductsService {
     }
     const totalProducts = await this.Productmodel.countDocuments(query);
     const documents = await this.Productmodel.find(query)
+      .populate([
+        { path: 'type', model: TypesModel.name },
+        { path: 'categories', model: CategoryModel.name },
+        { path: 'shop', model: ShopModel.name },
+      ])
       .skip(startIndex)
       .limit(limit);
     const products: Product[] = documents.map(
@@ -88,8 +96,14 @@ export class ProductsService {
   //      return productSlug;
   //   }
 
-  async getProductByid(id: string): Promise<ProductModel> {
-    const product = await this.Productmodel.findOne({ slug: id }).exec();
+  async getProductByid(slug: string): Promise<ProductModel> {
+    const product = await this.Productmodel.findOne({ slug: slug })
+      .populate([
+        { path: 'type', model: TypesModel.name },
+        { path: 'categories', model: CategoryModel.name },
+        { path: 'shop', model: ShopModel.name },
+      ])
+      .exec();
     return product;
   }
 
@@ -102,7 +116,14 @@ export class ProductsService {
       query['type.slug'] = type_slug; // Adjust the query based on type_slug
     }
 
-    const documents = await this.Productmodel.find(query).limit(limit).exec();
+    const documents = await this.Productmodel.find(query)
+      .populate([
+        { path: 'type', model: TypesModel.name },
+        { path: 'categories', model: CategoryModel.name },
+        { path: 'shop', model: ShopModel.name },
+      ])
+      .limit(limit)
+      .exec();
     const products: Product[] = documents.map(
       (doc: Document<any, any, Product>) => doc.toObject(),
     );
@@ -117,7 +138,14 @@ export class ProductsService {
       query['type.slug'] = type_slug; // Adjust the query based on type_slug
     }
 
-    const documents = await this.Productmodel.find(query).limit(limit).exec();
+    const documents = await this.Productmodel.find(query)
+      .populate([
+        { path: 'type', model: TypesModel.name },
+        { path: 'categories', model: CategoryModel.name },
+        { path: 'shop', model: ShopModel.name },
+      ])
+      .limit(limit)
+      .exec();
     const products: Product[] = documents.map(
       (doc: Document<any, any, Product>) => doc.toObject(),
     );
@@ -200,16 +228,16 @@ export class ProductsService {
     // const product = await this.Productmodel.find({ id: id });
     // console.log(product);
     const updatedProduct = await this.Productmodel.updateOne(
-      { id: id },
-      updateProductDto,
+      { _id: id },
+      { $set: updateProductDto },
     );
     // return product;
     // console.log(updatedProduct);
-    return updatedProduct;
+    return await this.Productmodel.findById(id);
   }
 
   async deleteProduct(id: number) {
-    const deletedProduct = await this.Productmodel.deleteOne({ id: id });
+    const deletedProduct = await this.Productmodel.deleteOne({ _id: id });
     return deletedProduct;
   }
 }

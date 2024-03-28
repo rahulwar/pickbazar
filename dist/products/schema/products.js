@@ -12,6 +12,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductSchema = exports.ProductModel = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
+const shop_1 = require("../../shops/schema/shop");
+const types_1 = require("../../types/schema/types");
 const uuid_1 = require("uuid");
 let ProductModel = class ProductModel extends mongoose_2.Document {
 };
@@ -164,16 +166,16 @@ __decorate([
     __metadata("design:type", Array)
 ], ProductModel.prototype, "translated_languages", void 0);
 __decorate([
-    (0, mongoose_1.Prop)(),
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose_2.Types.ObjectId, ref: 'CateoryModel' }] }),
     __metadata("design:type", Array)
 ], ProductModel.prototype, "categories", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Object }),
-    __metadata("design:type", Object)
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'ShopModel' }),
+    __metadata("design:type", shop_1.ShopModel)
 ], ProductModel.prototype, "shop", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ type: Object }),
-    __metadata("design:type", Object)
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'TypesModel' }),
+    __metadata("design:type", types_1.TypesModel)
 ], ProductModel.prototype, "type", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
@@ -200,7 +202,16 @@ __decorate([
     __metadata("design:type", String)
 ], ProductModel.prototype, "author", void 0);
 ProductModel = __decorate([
-    (0, mongoose_1.Schema)({ timestamps: true })
+    (0, mongoose_1.Schema)({
+        timestamps: true,
+        toJSON: {
+            transform: (doc, ret) => {
+                ret.id = ret._id;
+                delete ret._id;
+                delete ret.__v;
+            },
+        },
+    })
 ], ProductModel);
 exports.ProductModel = ProductModel;
 exports.ProductSchema = mongoose_1.SchemaFactory.createForClass(ProductModel);

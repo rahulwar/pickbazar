@@ -6,11 +6,11 @@ export declare class TagsController {
     private readonly tagsService;
     constructor(tagsService: TagsService);
     create(createTagDto: CreateTagDto): {
-        name: string;
         type: import("../types/entities/type.entity").Type;
+        name: string;
+        icon: string;
         language: string;
         details: string;
-        icon: string;
         image: import("../common/entities/attachment.entity").Attachment;
         id: number;
     };

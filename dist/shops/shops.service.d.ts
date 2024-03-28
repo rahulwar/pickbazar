@@ -1,10 +1,10 @@
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
-import { Shop } from './entities/shop.entity';
 import { GetShopsDto } from './dto/get-shops.dto';
 import { GetStaffsDto } from './dto/get-staffs.dto';
 import { ShopModel } from './schema/shop';
 import mongoose from 'mongoose';
+import { UsersModel } from 'src/users/schema/user';
 export declare class ShopsService {
     private Shopmodel;
     private shops;
@@ -29,7 +29,7 @@ export declare class ShopsService {
             _id: mongoose.Types.ObjectId;
         })[];
     }>;
-    getStaffs({ shop_id, limit, page }: GetStaffsDto): {
+    getStaffs({ shop_id, limit, page }: GetStaffsDto): Promise<{
         count: number;
         current_page: number;
         firstItem: number;
@@ -41,13 +41,19 @@ export declare class ShopsService {
         last_page_url: string;
         next_page_url: string;
         prev_page_url: string;
-        data: import("../users/entities/user.entity").User[];
-    };
-    getShop(slug: string): Shop;
-    getNearByShop(lat: string, lng: string): Shop[];
-    update(id: number, updateShopDto: UpdateShopDto): Shop;
-    approve(id: number): string;
-    remove(id: number): string;
-    disapproveShop(id: number): Shop;
-    approveShop(id: number): Shop;
+        data: UsersModel[];
+    }>;
+    getShop(slug: string): Promise<ShopModel>;
+    getNearByShop(lat: string, lng: string): Promise<ShopModel[]>;
+    update(id: string, updateShopDto: UpdateShopDto): Promise<mongoose.Document<unknown, {}, ShopModel> & ShopModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    approve(id: string): string;
+    remove(id: string): Promise<void>;
+    disapproveShop(id: string): Promise<mongoose.Document<unknown, {}, ShopModel> & ShopModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    approveShop(id: string): Promise<mongoose.Document<unknown, {}, ShopModel> & ShopModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
 }

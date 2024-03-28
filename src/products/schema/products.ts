@@ -1,8 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { CategoryModel } from 'src/categories/schema/category';
+import { ShopModel } from 'src/shops/schema/shop';
+import { TypesModel } from 'src/types/schema/types';
 import { v4 as uuidv4 } from 'uuid';
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: {
+    transform: (doc, ret) => {
+      ret.id = ret._id;
+      delete ret._id;
+      delete ret.__v;
+    },
+  },
+})
 export class ProductModel extends Document {
   // changes from number to string
   @Prop({ default: uuidv4 })
@@ -138,94 +150,99 @@ export class ProductModel extends Document {
   @Prop({ required: true })
   translated_languages: string[];
 
-  @Prop()
-  categories: {
-    id: number;
-    name: string;
-    slug: string;
-    language: string;
-    icon: string;
-    image: string[];
-    details: string;
-    parent: string;
-    type_id: number;
-    created_at: Date;
-    updated_at: Date;
-    deleted_at: Date;
-    parent_id: string;
-    translated_languages: string[];
-    pivot: {
-      product_id: number;
-      category_id: number;
-    };
-  }[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'CateoryModel' }] })
+  // categories: {
+  //   id: number;
+  //   name: string;
+  //   slug: string;
+  //   language: string;
+  //   icon: string;
+  //   image: string[];
+  //   details: string;
+  //   parent: string;
+  //   type_id: number;
+  //   created_at: Date;
+  //   updated_at: Date;
+  //   deleted_at: Date;
+  //   parent_id: string;
+  //   translated_languages: string[];
+  //   pivot: {
+  //     product_id: number;
+  //     category_id: number;
+  //   };
+  // }[];
+  categories: CategoryModel[];
 
-  @Prop({ type: Object })
-  shop: {
-    id: number;
-    owner_id: number;
-    name: string;
-    slug: string;
-    description: string;
-    cover_image: {
-      id: string;
-      original: string;
-      thumbnail: string;
-    };
-    logo: {
-      id: string;
-      original: string;
-      thumbnail: string;
-    };
-    is_active: number;
-    address: {
-      zip: string;
-      city: string;
-      state: string;
-      country: string;
-      street_address: string;
-    };
-    settings: {
-      contact: string;
-      socials: {
-        url: string;
-        icon: string;
-      }[];
-      website: string;
-      location: {
-        lat: number;
-        lng: number;
-        city: string;
-        state: string;
-        country: string;
-        formattedAddress: string;
-      };
-    };
-    created_at: Date;
-    updated_at: Date;
-  };
+  // @Prop({ type: Object })
+  // shop: {
+  //   id: number;
+  //   owner_id: number;
+  //   name: string;
+  //   slug: string;
+  //   description: string;
+  //   cover_image: {
+  //     id: string;
+  //     original: string;
+  //     thumbnail: string;
+  //   };
+  //   logo: {
+  //     id: string;
+  //     original: string;
+  //     thumbnail: string;
+  //   };
+  //   is_active: number;
+  //   address: {
+  //     zip: string;
+  //     city: string;
+  //     state: string;
+  //     country: string;
+  //     street_address: string;
+  //   };
+  //   settings: {
+  //     contact: string;
+  //     socials: {
+  //       url: string;
+  //       icon: string;
+  //     }[];
+  //     website: string;
+  //     location: {
+  //       lat: number;
+  //       lng: number;
+  //       city: string;
+  //       state: string;
+  //       country: string;
+  //       formattedAddress: string;
+  //     };
+  //   };
+  //   created_at: Date;
+  //   updated_at: Date;
+  // };
+  @Prop({ type: Types.ObjectId, ref: 'ShopModel' })
+  shop: ShopModel;
 
-  @Prop({ type: Object })
-  type: {
-    id: number;
-    name: string;
-    settings: {
-      isHome: boolean;
-      layoutType: string;
-      productCard: string;
-    };
-    slug: string;
-    language: string;
-    icon: string;
-    promotional_sliders: {
-      id: string;
-      original: string;
-      thumbnail: string;
-    }[];
-    created_at: Date;
-    updated_at: Date;
-    translated_languages: string[];
-  };
+  // @Prop({ type: Object })
+  // type: {
+  //   id: number;
+  //   name: string;
+  //   settings: {
+  //     isHome: boolean;
+  //     layoutType: string;
+  //     productCard: string;
+  //   };
+  //   slug: string;
+  //   language: string;
+  //   icon: string;
+  //   promotional_sliders: {
+  //     id: string;
+  //     original: string;
+  //     thumbnail: string;
+  //   }[];
+  //   created_at: Date;
+  //   updated_at: Date;
+  //   translated_languages: string[];
+  // };
+  @Prop({ type: Types.ObjectId, ref: 'TypesModel' })
+  type: TypesModel;
 
   @Prop()
   variations: string[];

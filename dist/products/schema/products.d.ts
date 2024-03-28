@@ -22,7 +22,10 @@
 /// <reference types="mongoose/types/validation" />
 /// <reference types="mongoose/types/virtuals" />
 /// <reference types="mongoose/types/inferschematype" />
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { CategoryModel } from 'src/categories/schema/category';
+import { ShopModel } from 'src/shops/schema/shop';
+import { TypesModel } from 'src/types/schema/types';
 export declare class ProductModel extends Document {
     id: string;
     name: string;
@@ -71,89 +74,9 @@ export declare class ProductModel extends Document {
     in_wishlist: boolean;
     blocked_dates: Date[];
     translated_languages: string[];
-    categories: {
-        id: number;
-        name: string;
-        slug: string;
-        language: string;
-        icon: string;
-        image: string[];
-        details: string;
-        parent: string;
-        type_id: number;
-        created_at: Date;
-        updated_at: Date;
-        deleted_at: Date;
-        parent_id: string;
-        translated_languages: string[];
-        pivot: {
-            product_id: number;
-            category_id: number;
-        };
-    }[];
-    shop: {
-        id: number;
-        owner_id: number;
-        name: string;
-        slug: string;
-        description: string;
-        cover_image: {
-            id: string;
-            original: string;
-            thumbnail: string;
-        };
-        logo: {
-            id: string;
-            original: string;
-            thumbnail: string;
-        };
-        is_active: number;
-        address: {
-            zip: string;
-            city: string;
-            state: string;
-            country: string;
-            street_address: string;
-        };
-        settings: {
-            contact: string;
-            socials: {
-                url: string;
-                icon: string;
-            }[];
-            website: string;
-            location: {
-                lat: number;
-                lng: number;
-                city: string;
-                state: string;
-                country: string;
-                formattedAddress: string;
-            };
-        };
-        created_at: Date;
-        updated_at: Date;
-    };
-    type: {
-        id: number;
-        name: string;
-        settings: {
-            isHome: boolean;
-            layoutType: string;
-            productCard: string;
-        };
-        slug: string;
-        language: string;
-        icon: string;
-        promotional_sliders: {
-            id: string;
-            original: string;
-            thumbnail: string;
-        }[];
-        created_at: Date;
-        updated_at: Date;
-        translated_languages: string[];
-    };
+    categories: CategoryModel[];
+    shop: ShopModel;
+    type: TypesModel;
     variations: string[];
     metas: string[];
     manufacturer: string;
@@ -162,7 +85,7 @@ export declare class ProductModel extends Document {
     author: string;
 }
 export declare const ProductSchema: import("mongoose").Schema<ProductModel, import("mongoose").Model<ProductModel, any, any, any, Document<unknown, any, ProductModel> & ProductModel & {
-    _id: import("mongoose").Types.ObjectId;
+    _id: Types.ObjectId;
 }, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, ProductModel, Document<unknown, {}, import("mongoose").FlatRecord<ProductModel>> & import("mongoose").FlatRecord<ProductModel> & {
-    _id: import("mongoose").Types.ObjectId;
+    _id: Types.ObjectId;
 }>;

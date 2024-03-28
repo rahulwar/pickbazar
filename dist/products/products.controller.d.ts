@@ -37,7 +37,9 @@ export declare class ProductsController {
     createProduct(createProductDto: CreateProductDto): Promise<void>;
     getProducts(query: GetProductsDto): Promise<ProductPaginator>;
     getProduct(id: string): Promise<ProductModel>;
-    update(id: string, updateProductDto: UpdateProductDto): Promise<import("mongoose").UpdateWriteOpResult>;
+    update(id: string, updateProductDto: UpdateProductDto): Promise<import("mongoose").Document<unknown, {}, ProductModel> & ProductModel & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
     remove(id: string): Promise<import("mongodb").DeleteResult>;
 }
 export declare class PopularProductsController {

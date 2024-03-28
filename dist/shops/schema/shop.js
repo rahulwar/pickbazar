@@ -12,10 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShopSchema = exports.ShopModel = void 0;
 const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
-const user_entity_1 = require("../../users/entities/user.entity");
 const shop_entity_1 = require("../entities/shop.entity");
 const attachment_entity_1 = require("../../common/entities/attachment.entity");
 const address_entity_1 = require("../../addresses/entities/address.entity");
+const user_1 = require("../../users/schema/user");
 let ShopModel = class ShopModel extends mongoose_2.Document {
 };
 __decorate([
@@ -23,11 +23,11 @@ __decorate([
     __metadata("design:type", Number)
 ], ShopModel.prototype, "owner_id", void 0);
 __decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", user_entity_1.User)
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'UsersModel' }),
+    __metadata("design:type", user_1.UsersModel)
 ], ShopModel.prototype, "owner", void 0);
 __decorate([
-    (0, mongoose_1.Prop)(),
+    (0, mongoose_1.Prop)({ type: [{ type: mongoose_2.Types.ObjectId, ref: 'UsersModel' }] }),
     __metadata("design:type", Array)
 ], ShopModel.prototype, "staffs", void 0);
 __decorate([
@@ -76,7 +76,7 @@ __decorate([
 ], ShopModel.prototype, "settings", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
-    __metadata("design:type", String)
+    __metadata("design:type", Number)
 ], ShopModel.prototype, "distance", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),

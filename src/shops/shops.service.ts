@@ -12,6 +12,8 @@ import { GetStaffsDto } from './dto/get-staffs.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { ShopModel } from './schema/shop';
 import mongoose from 'mongoose';
+import * as geolib from 'geolib';
+import { UsersModel } from 'src/users/schema/user';
 
 const shops = plainToClass(Shop, shopsJson);
 const nearShops = plainToClass(Shop, nearShopJson);
@@ -68,52 +70,129 @@ export class ShopsService {
     };
   }
 
-  getStaffs({ shop_id, limit, page }: GetStaffsDto) {
+  async getStaffs({ shop_id, limit, page }: GetStaffsDto) {
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
-    let staffs: Shop['staffs'] = [];
-    if (shop_id) {
-      staffs = this.shops.find((p) => p.id === Number(shop_id))?.staffs ?? [];
-    }
-    const results = staffs?.slice(startIndex, endIndex);
+    // let staffs: Shop['staffs'] = [];
+    // if (shop_id) {
+    //   staffs = this.shops.find((p) => p.id === Number(shop_id))?.staffs ?? [];
+    // }
+    // const results = staffs?.slice(startIndex, endIndex);
+    const results = await this.Shopmodel.findOne({ _id: shop_id })
+      .populate({
+        path: 'staffs',
+        model: UsersModel.name,
+      })
+      .select('staffs');
+    const totalCount = results.staffs.length;
+    const staffs = results.staffs.slice(startIndex, endIndex);
     const url = `/staffs?limit=${limit}`;
 
     return {
-      data: results,
-      ...paginate(staffs?.length, page, limit, results?.length, url),
+      data: staffs,
+      ...paginate(totalCount, page, limit, staffs?.length, url),
     };
   }
 
-  getShop(slug: string): Shop {
-    return this.shops.find((p) => p.slug === slug);
+  async getShop(slug: string): Promise<ShopModel> {
+    const shop = await this.Shopmodel.findOne({ slug: slug });
+    if (!shop) {
+      throw new Error('no shop found');
+    }
+    // return this.shops.find((p) => p.slug === slug);
+    return shop;
   }
 
-  getNearByShop(lat: string, lng: string) {
-    return nearShops;
+  async getNearByShop(lat: string, lng: string): Promise<ShopModel[]> {
+    // return nearShops
+    // const radiusInKilometers = 5;
+    // const shops = await this.Shopmodel.find({
+    //   location: {
+    //     $nearSphere: {
+    //       $geometry: {
+    //         type: 'Point',
+    //         coordinates: [parseFloat(lng), parseFloat(lat)],
+    //       },
+    //       $maxDistance: radiusInKilometers * 1000,
+    //     },
+    //   },
+    // });
+
+    //without given the distance
+    // const radiusInKilometers = 5;
+
+    // const latFloat = parseFloat(lat);
+    // const lngFloat = parseFloat(lng);
+
+    // const shops = await this.Shopmodel.find({
+    //   lat: {
+    //     $gte: (latFloat - (1 / 111.12) * radiusInKilometers).toString(),
+    //     $lte: (latFloat + (1 / 111.12) * radiusInKilometers).toString(),
+    //   },
+    //   lng: {
+    //     $gte: (
+    //       lngFloat -
+    //       (1 / (111.12 * Math.cos(latFloat * (Math.PI / 180)))) *
+    //         radiusInKilometers
+    //     ).toString(),
+    //     $lte: (
+    //       lngFloat +
+    //       (1 / (111.12 * Math.cos(latFloat * (Math.PI / 180)))) *
+    //         radiusInKilometers
+    //     ).toString(),
+    //   },
+    // });
+    const userLocation = {
+      latitude: parseFloat(lat),
+      longitude: parseFloat(lng),
+    };
+
+    const shops = await this.Shopmodel.find().lean();
+    const nearbyShops = shops.filter((shop) => {
+      const shopLocation = {
+        latitude: parseFloat(shop.lat),
+        longitude: parseFloat(shop.lng),
+      };
+      const distance = geolib.getDistance(userLocation, shopLocation);
+      return distance <= shop.distance;
+    });
+
+    return nearbyShops;
   }
 
-  update(id: number, updateShopDto: UpdateShopDto) {
-    return this.shops[0];
+  async update(id: string, updateShopDto: UpdateShopDto) {
+    const shop = await this.Shopmodel.updateOne(
+      { _id: id },
+      { $set: updateShopDto },
+    );
+    return await this.Shopmodel.findById(id);
   }
 
-  approve(id: number) {
+  approve(id: string) {
     return `This action removes a #${id} shop`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} shop`;
+  async remove(id: string) {
+    await this.Shopmodel.deleteOne({ _id: id });
   }
 
-  disapproveShop(id: number) {
-    const shop = this.shops.find((s) => s.id === Number(id));
+  async disapproveShop(id: string) {
+    // const shop = this.shops.find((s) => s.id === Number(id));
+    // shop.is_active = false;
+
+    const shop = await this.Shopmodel.findById(id);
     shop.is_active = false;
+    await shop.save();
 
     return shop;
   }
 
-  approveShop(id: number) {
-    const shop = this.shops.find((s) => s.id === Number(id));
+  async approveShop(id: string) {
+    // const shop = this.shops.find((s) => s.id === Number(id));
+    // shop.is_active = true;
+    const shop = await this.Shopmodel.findById(id);
     shop.is_active = true;
+    await shop.save();
 
     return shop;
   }

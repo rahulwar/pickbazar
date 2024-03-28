@@ -49,6 +49,9 @@ const paginate_1 = require("../common/pagination/paginate");
 const products_json_1 = __importDefault(require("../db/pickbazar/products.json"));
 const popular_products_json_1 = __importDefault(require("../db/pickbazar/popular-products.json"));
 const best_selling_products_json_1 = __importDefault(require("../db/pickbazar/best-selling-products.json"));
+const types_1 = require("../types/schema/types");
+const category_1 = require("../categories/schema/category");
+const shop_1 = require("../shops/schema/shop");
 const products = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, products_json_1.default);
 const popularProducts = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, popular_products_json_1.default);
 const bestSellingProducts = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, best_selling_products_json_1.default);
@@ -92,14 +95,25 @@ let ProductsService = class ProductsService {
         }
         const totalProducts = await this.Productmodel.countDocuments(query);
         const documents = await this.Productmodel.find(query)
+            .populate([
+            { path: 'type', model: types_1.TypesModel.name },
+            { path: 'categories', model: category_1.CategoryModel.name },
+            { path: 'shop', model: shop_1.ShopModel.name },
+        ])
             .skip(startIndex)
             .limit(limit);
         const products = documents.map((doc) => doc.toObject());
         const url = `/products?search=${search}&limit=${limit}`;
         return Object.assign({ data: products }, (0, paginate_1.paginate)(totalProducts, page, limit, products.length, url));
     }
-    async getProductByid(id) {
-        const product = await this.Productmodel.findOne({ slug: id }).exec();
+    async getProductByid(slug) {
+        const product = await this.Productmodel.findOne({ slug: slug })
+            .populate([
+            { path: 'type', model: types_1.TypesModel.name },
+            { path: 'categories', model: category_1.CategoryModel.name },
+            { path: 'shop', model: shop_1.ShopModel.name },
+        ])
+            .exec();
         return product;
     }
     async getPopularProducts({ limit, type_slug, }) {
@@ -107,7 +121,14 @@ let ProductsService = class ProductsService {
         if (type_slug) {
             query['type.slug'] = type_slug;
         }
-        const documents = await this.Productmodel.find(query).limit(limit).exec();
+        const documents = await this.Productmodel.find(query)
+            .populate([
+            { path: 'type', model: types_1.TypesModel.name },
+            { path: 'categories', model: category_1.CategoryModel.name },
+            { path: 'shop', model: shop_1.ShopModel.name },
+        ])
+            .limit(limit)
+            .exec();
         const products = documents.map((doc) => doc.toObject());
         return products;
     }
@@ -121,11 +142,11 @@ let ProductsService = class ProductsService {
         return products;
     }
     async updateProduct(id, updateProductDto) {
-        const updatedProduct = await this.Productmodel.updateOne({ id: id }, updateProductDto);
-        return updatedProduct;
+        const updatedProduct = await this.Productmodel.updateOne({ _id: id }, { $set: updateProductDto });
+        return await this.Productmodel.findById(id);
     }
     async deleteProduct(id) {
-        const deletedProduct = await this.Productmodel.deleteOne({ id: id });
+        const deletedProduct = await this.Productmodel.deleteOne({ _id: id });
         return deletedProduct;
     }
 };
