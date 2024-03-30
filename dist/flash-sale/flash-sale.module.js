@@ -10,12 +10,19 @@ exports.FlashSaleModule = void 0;
 const common_1 = require("@nestjs/common");
 const flash_sale_controller_1 = require("./flash-sale.controller");
 const flash_sale_service_1 = require("./flash-sale.service");
+const mongoose_1 = require("@nestjs/mongoose");
+const flashsale_1 = require("./schema/flashsale");
 let FlashSaleModule = class FlashSaleModule {
 };
 FlashSaleModule = __decorate([
     (0, common_1.Module)({
         controllers: [flash_sale_controller_1.FlashSaleController, flash_sale_controller_1.ProductsByFlashSaleController],
         providers: [flash_sale_service_1.FlashSaleService],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: flashsale_1.FlashSaleModel.name, schema: flashsale_1.FlashSaleSchema },
+            ]),
+        ],
     })
 ], FlashSaleModule);
 exports.FlashSaleModule = FlashSaleModule;

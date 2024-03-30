@@ -38,11 +38,11 @@ export class FaqsController {
     @Param('language') language: string,
     @Body() updateFaqDto: UpdateFaqDto,
   ) {
-    return this.faqService.update(+id, updateFaqDto);
+    return this.faqService.update(id, updateFaqDto);
   }
 
   @Delete(':id')
   deleteFaq(@Param('id') id: string) {
-    return this.faqService.remove(+id);
+    return this.faqService.remove(id);
   }
 }

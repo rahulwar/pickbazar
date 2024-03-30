@@ -1,13 +1,17 @@
-import { FlashSale } from './entities/flash-sale.entity';
 import { GetFlashSaleDto } from './dto/get-flash-sales.dto';
 import { CreateFlashSaleDto } from './dto/create-flash-sale.dto';
 import { UpdateFlashSaleDto } from './dto/update-flash-sale.dto';
-import { Product } from 'src/products/entities/product.entity';
+import { FlashSaleModel } from './schema/flashsale';
+import mongoose from 'mongoose';
 export declare class FlashSaleService {
+    private flashSaleModel;
     private flashSale;
     private productsByFlashSale;
-    create(createFlashSaleDto: CreateFlashSaleDto): FlashSale;
-    findAllFlashSale({ search, limit, page }: GetFlashSaleDto): {
+    constructor(flashSaleModel: mongoose.Model<FlashSaleModel>);
+    create(createFlashSaleDto: CreateFlashSaleDto): Promise<mongoose.Document<unknown, {}, FlashSaleModel> & FlashSaleModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    findAllFlashSale({ search, limit, page }: GetFlashSaleDto): Promise<{
         count: number;
         current_page: number;
         firstItem: number;
@@ -19,12 +23,18 @@ export declare class FlashSaleService {
         last_page_url: string;
         next_page_url: string;
         prev_page_url: string;
-        data: FlashSale[];
-    };
-    getFlashSale(param: string, language: string): FlashSale;
-    update(id: number, updateFlashSaleDto: UpdateFlashSaleDto): FlashSale;
-    remove(id: number): string;
-    findAllProductsByFlashSale({ search, limit, page }: GetFlashSaleDto): {
+        data: Omit<mongoose.Document<unknown, {}, FlashSaleModel> & FlashSaleModel & {
+            _id: mongoose.Types.ObjectId;
+        }, never>[];
+    }>;
+    getFlashSale(param: string, language: string): Promise<mongoose.Document<unknown, {}, FlashSaleModel> & FlashSaleModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    update(id: string, updateFlashSaleDto: UpdateFlashSaleDto): Promise<Omit<mongoose.Document<unknown, {}, FlashSaleModel> & FlashSaleModel & {
+        _id: mongoose.Types.ObjectId;
+    }, never>>;
+    remove(id: string): Promise<mongoose.mongo.DeleteResult>;
+    findAllProductsByFlashSale({ search, limit, page }: GetFlashSaleDto): Promise<{
         count: number;
         current_page: number;
         firstItem: number;
@@ -36,6 +46,6 @@ export declare class FlashSaleService {
         last_page_url: string;
         next_page_url: string;
         prev_page_url: string;
-        data: Product[];
-    };
+        data: any[];
+    }>;
 }

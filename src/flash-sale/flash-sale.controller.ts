@@ -41,12 +41,12 @@ export class FlashSaleController {
     @Param('language') language: string,
     @Body() updateFlashSaleDto: UpdateFlashSaleDto,
   ) {
-    return this.flashSaleService.update(+id, updateFlashSaleDto);
+    return this.flashSaleService.update(id, updateFlashSaleDto);
   }
 
   @Delete(':id')
   deleteFlashSale(@Param('id') id: string) {
-    return this.flashSaleService.remove(+id);
+    return this.flashSaleService.remove(id);
   }
 }
 

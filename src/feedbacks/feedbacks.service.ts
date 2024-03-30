@@ -1,26 +1,52 @@
 import { Injectable } from '@nestjs/common';
 import { CreateFeedBackDto } from './dto/create-feedback.dto';
 import { UpdateFeedBackDto } from './dto/update-feedback.dto';
+import { InjectModel } from '@nestjs/mongoose';
+import { FeedbackModel } from './schema/feedback';
+import mongoose from 'mongoose';
+import { UsersModel } from 'src/users/schema/user';
 
 @Injectable()
 export class FeedbackService {
-  findAllFeedBacks() {
-    return 'this route returns all feedbacks';
+  constructor(
+    @InjectModel(FeedbackModel.name)
+    private feedbackModel: mongoose.Model<FeedbackModel>,
+  ) {}
+  async findAllFeedBacks() {
+    return await this.feedbackModel
+      .find()
+      .populate({ path: 'user_id', model: UsersModel.name });
   }
 
-  findFeedBack(id: number) {
-    return `This action returns a #${id} feedback`;
+  async findFeedBack(id: string) {
+    const feedback = await this.feedbackModel
+      .findById(id)
+      .populate({ path: 'user_id', model: UsersModel.name });
+    if (feedback) {
+      return feedback;
+    } else {
+      throw new Error(`Feedback for ${id} not found`);
+    }
   }
 
-  create(createFeedBackDto: CreateFeedBackDto) {
-    return 'This action adds a new feedback';
+  async create(createFeedBackDto: CreateFeedBackDto) {
+    return this.feedbackModel.create(createFeedBackDto);
   }
 
-  update(id: number, updateFeedbackDto: UpdateFeedBackDto) {
-    return `This action updates a #${id} feedback`;
+  async update(id: string, updateFeedbackDto: UpdateFeedBackDto) {
+    const feedback = await this.feedbackModel.findById(id);
+    if (!feedback) {
+      throw new Error(`Feedback for ${id} not found`);
+    }
+    await this.feedbackModel.updateOne(
+      { _id: id },
+      { $set: { updateFeedbackDto } },
+    );
+
+    return await this.feedbackModel.findById(id);
   }
 
-  delete(id: number) {
-    return `This action removes a #${id} feedback`;
+  async delete(id: string) {
+    return this.feedbackModel.deleteOne({ _id: id });
   }
 }

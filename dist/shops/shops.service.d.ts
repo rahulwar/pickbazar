@@ -25,9 +25,9 @@ export declare class ShopsService {
         last_page_url: string;
         next_page_url: string;
         prev_page_url: string;
-        data: (mongoose.Document<unknown, {}, ShopModel> & ShopModel & {
+        data: Omit<mongoose.Document<unknown, {}, ShopModel> & ShopModel & {
             _id: mongoose.Types.ObjectId;
-        })[];
+        }, never>[];
     }>;
     getStaffs({ shop_id, limit, page }: GetStaffsDto): Promise<{
         count: number;

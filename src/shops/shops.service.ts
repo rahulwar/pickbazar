@@ -58,6 +58,10 @@ export class ShopsService {
     // }
     // const results = data.slice(startIndex, endIndex);
     const results = await this.Shopmodel.find(query)
+      .populate({
+        path: 'staffs',
+        model: UsersModel.name,
+      })
       .skip(startIndex)
       .limit(limit)
       .exec();

@@ -31,7 +31,7 @@ let MessagesController = class MessagesController {
 };
 __decorate([
     (0, common_1.Post)(':id'),
-    openapi.ApiResponse({ status: 201, type: require("./entities/message.entity").Message }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_message_dto_1.CreateMessageDto]),

@@ -1,10 +1,15 @@
 import { CreateConversationDto } from './dto/create-conversation.dto';
-import { Conversation } from './entities/conversation.entity';
 import { GetConversationsDto } from './dto/get-conversations.dto';
+import { ConversationModel } from './schema/conversation';
+import mongoose from 'mongoose';
 export declare class ConversationsService {
+    private conversationModel;
     private conversations;
-    create(createConversationDto: CreateConversationDto): Conversation;
-    getAllConversations({ page, limit, search }: GetConversationsDto): {
+    constructor(conversationModel: mongoose.Model<ConversationModel>);
+    create(createConversationDto: CreateConversationDto): Promise<mongoose.Document<unknown, {}, ConversationModel> & ConversationModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    getAllConversations({ page, limit, search }: GetConversationsDto): Promise<{
         count: number;
         current_page: number;
         firstItem: number;
@@ -16,7 +21,7 @@ export declare class ConversationsService {
         last_page_url: string;
         next_page_url: string;
         prev_page_url: string;
-        data: Conversation[];
-    };
-    getConversation(param: string): Conversation;
+        data: any;
+    }>;
+    getConversation(param: string): Promise<{}>;
 }

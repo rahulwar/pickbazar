@@ -5,6 +5,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -18,6 +24,10 @@ const fuse_js_1 = __importDefault(require("fuse.js"));
 const paginate_1 = require("../common/pagination/paginate");
 const flash_sale_entity_1 = require("./entities/flash-sale.entity");
 const product_entity_1 = require("../products/entities/product.entity");
+const mongoose_1 = require("@nestjs/mongoose");
+const flashsale_1 = require("./schema/flashsale");
+const mongoose_2 = __importDefault(require("mongoose"));
+const products_1 = require("../products/schema/products");
 const flashSale = (0, class_transformer_1.plainToClass)(flash_sale_entity_1.FlashSale, flash_sale_json_1.default);
 const options = {
     keys: ['title'],
@@ -31,66 +41,95 @@ const productsByFlashSaleOptions = {
 };
 const productsByFlashSaleFuse = new fuse_js_1.default(productsByFlashSale, productsByFlashSaleOptions);
 let FlashSaleService = class FlashSaleService {
-    constructor() {
+    constructor(flashSaleModel) {
+        this.flashSaleModel = flashSaleModel;
         this.flashSale = flashSale;
         this.productsByFlashSale = productsByFlashSale;
     }
-    create(createFlashSaleDto) {
-        return this.flashSale[0];
+    async create(createFlashSaleDto) {
+        return await this.flashSaleModel.create(createFlashSaleDto);
     }
-    findAllFlashSale({ search, limit, page }) {
-        var _a;
+    async findAllFlashSale({ search, limit, page }) {
         if (!page)
             page = 1;
         if (!limit)
             limit = 10;
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        let data = this.flashSale;
+        let query = {};
         if (search) {
             const parseSearchParams = search.split(';');
             for (const searchParam of parseSearchParams) {
                 const [key, value] = searchParam.split(':');
-                data = (_a = fuse.search(value)) === null || _a === void 0 ? void 0 : _a.map(({ item }) => item);
+                query[key] = value;
             }
         }
-        const results = data.slice(startIndex, endIndex);
+        const data = await this.flashSaleModel.countDocuments(query);
+        const results = await this.flashSaleModel
+            .find(query)
+            .populate({ path: 'products', model: products_1.ProductModel.name })
+            .skip(startIndex)
+            .limit(limit)
+            .exec();
         const url = `/flash-sale?search=${search}&limit=${limit}`;
-        return Object.assign({ data: results }, (0, paginate_1.paginate)(data.length, page, limit, results.length, url));
+        return Object.assign({ data: results }, (0, paginate_1.paginate)(data, page, limit, results.length, url));
     }
-    getFlashSale(param, language) {
-        return this.flashSale.find((p) => p.slug === param);
+    async getFlashSale(param, language) {
+        return await this.flashSaleModel
+            .findOne({ slug: param })
+            .populate({ path: 'products', model: products_1.ProductModel.name });
     }
-    update(id, updateFlashSaleDto) {
-        return this.flashSale[0];
+    async update(id, updateFlashSaleDto) {
+        await this.flashSaleModel.updateOne({ _id: id }, { $set: updateFlashSaleDto });
+        return (await this.flashSaleModel.findById(id)).populate({
+            path: 'products',
+            model: products_1.ProductModel.name,
+        });
     }
-    remove(id) {
-        return `This action removes a #${id} Flash Sale`;
+    async remove(id) {
+        return await this.flashSaleModel.deleteOne({ _id: id });
     }
-    findAllProductsByFlashSale({ search, limit, page }) {
-        var _a;
+    async findAllProductsByFlashSale({ search, limit, page }) {
         if (!page)
             page = 1;
         if (!limit)
             limit = 10;
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        let productsByData = this.productsByFlashSale;
+        const productQuery = {};
         if (search) {
             const parseSearchParams = search.split(';');
             for (const searchParam of parseSearchParams) {
                 const [key, value] = searchParam.split(':');
-                productsByData = (_a = productsByFlashSaleFuse
-                    .search(value)) === null || _a === void 0 ? void 0 : _a.map(({ item }) => item);
+                productQuery[key] = value;
             }
         }
-        const results = productsByData.slice(startIndex, endIndex);
-        const url = `/products-by-flash-sale?search=${search}&limit=${limit}`;
-        return Object.assign({ data: results }, (0, paginate_1.paginate)(productsByData.length, page, limit, results.length, url));
+        try {
+            const flashSales = await this.flashSaleModel.find().populate({
+                path: 'products',
+                match: productQuery,
+            });
+            const allProducts = flashSales.reduce((products, flashSale) => {
+                if (flashSale.products) {
+                    products.push(...flashSale.products);
+                }
+                return products;
+            }, []);
+            const totalProducts = allProducts.length;
+            const paginatedProducts = allProducts.slice(startIndex, endIndex);
+            const url = `/products-by-flash-sale?search=${search}&limit=${limit}`;
+            return Object.assign({ data: paginatedProducts }, (0, paginate_1.paginate)(totalProducts, page, limit, paginatedProducts.length, url));
+        }
+        catch (error) {
+            console.error('Error fetching products by flash sale:', error);
+            throw error;
+        }
     }
 };
 FlashSaleService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_1.InjectModel)(flashsale_1.FlashSaleModel.name)),
+    __metadata("design:paramtypes", [mongoose_2.default.Model])
 ], FlashSaleService);
 exports.FlashSaleService = FlashSaleService;
 //# sourceMappingURL=flash-sale.service.js.map

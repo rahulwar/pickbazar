@@ -82,6 +82,10 @@ let ShopsService = class ShopsService {
         }
         const total = await this.Shopmodel.countDocuments(query);
         const results = await this.Shopmodel.find(query)
+            .populate({
+            path: 'staffs',
+            model: user_1.UsersModel.name,
+        })
             .skip(startIndex)
             .limit(limit)
             .exec();

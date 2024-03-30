@@ -33,15 +33,15 @@ let FlashSaleController = class FlashSaleController {
         return this.flashSaleService.getFlashSale(param, language);
     }
     update(id, language, updateFlashSaleDto) {
-        return this.flashSaleService.update(+id, updateFlashSaleDto);
+        return this.flashSaleService.update(id, updateFlashSaleDto);
     }
     deleteFlashSale(id) {
-        return this.flashSaleService.remove(+id);
+        return this.flashSaleService.remove(id);
     }
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/flash-sale.entity").FlashSale }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_flash_sale_dto_1.CreateFlashSaleDto]),
@@ -57,7 +57,7 @@ __decorate([
 ], FlashSaleController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':param'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/flash-sale.entity").FlashSale }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('param')),
     __param(1, (0, common_1.Query)('language')),
     __metadata("design:type", Function),
@@ -66,7 +66,7 @@ __decorate([
 ], FlashSaleController.prototype, "getFlashSale", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/flash-sale.entity").FlashSale }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Param)('language')),
     __param(2, (0, common_1.Body)()),
@@ -76,7 +76,7 @@ __decorate([
 ], FlashSaleController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

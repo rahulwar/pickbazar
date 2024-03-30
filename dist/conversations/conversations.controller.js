@@ -34,7 +34,7 @@ let ConversationsController = class ConversationsController {
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/conversation.entity").Conversation }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_conversation_dto_1.CreateConversationDto]),
@@ -50,7 +50,7 @@ __decorate([
 ], ConversationsController.prototype, "getConversations", null);
 __decorate([
     (0, common_1.Get)(':param'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/conversation.entity").Conversation }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('param')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

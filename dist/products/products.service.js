@@ -137,7 +137,14 @@ let ProductsService = class ProductsService {
         if (type_slug) {
             query['type.slug'] = type_slug;
         }
-        const documents = await this.Productmodel.find(query).limit(limit).exec();
+        const documents = await this.Productmodel.find(query)
+            .populate([
+            { path: 'type', model: types_1.TypesModel.name },
+            { path: 'categories', model: category_1.CategoryModel.name },
+            { path: 'shop', model: shop_1.ShopModel.name },
+        ])
+            .limit(limit)
+            .exec();
         const products = documents.map((doc) => doc.toObject());
         return products;
     }

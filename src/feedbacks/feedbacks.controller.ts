@@ -22,7 +22,7 @@ export class FeedbackController {
 
   // get single feedback
   @Get(':id')
-  find(@Param('id') id: number) {
+  find(@Param('id') id: string) {
     return this.feedbackService.findFeedBack(id);
   }
 
@@ -38,12 +38,12 @@ export class FeedbackController {
     @Param('id') id: string,
     @Body() updateFeedBackDto: UpdateFeedBackDto,
   ) {
-    return this.feedbackService.update(+id, updateFeedBackDto);
+    return this.feedbackService.update(id, updateFeedBackDto);
   }
 
   // delete a feedback
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.feedbackService.delete(+id);
+    return this.feedbackService.delete(id);
   }
 }

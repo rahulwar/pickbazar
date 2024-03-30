@@ -10,12 +10,19 @@ exports.ConversationsModule = void 0;
 const common_1 = require("@nestjs/common");
 const conversations_controller_1 = require("./conversations.controller");
 const conversations_service_1 = require("./conversations.service");
+const mongoose_1 = require("@nestjs/mongoose");
+const conversation_1 = require("./schema/conversation");
 let ConversationsModule = class ConversationsModule {
 };
 ConversationsModule = __decorate([
     (0, common_1.Module)({
         controllers: [conversations_controller_1.ConversationsController],
         providers: [conversations_service_1.ConversationsService],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: conversation_1.ConversationModel.name, schema: conversation_1.ConversationSchema },
+            ]),
+        ],
     })
 ], ConversationsModule);
 exports.ConversationsModule = ConversationsModule;
