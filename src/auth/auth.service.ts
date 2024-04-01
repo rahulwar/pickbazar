@@ -86,7 +86,7 @@ export class AuthService {
     }
     const payload = { email: user.email, sub: user.id };
     const jwtToken = this.jwtService.sign(payload);
-    console.log(jwtToken);
+
     return {
       token: jwtToken,
       permissions: user.permissions,
@@ -192,12 +192,13 @@ export class AuthService {
   // public getUser(getUserArgs: GetUserArgs): User {
   //   return this.users.find((user) => user.id === getUserArgs.id);
   // }
-  me(@Req() request?: any): User {
+  me(request?: any): User {
     // if (request && request.user && request.user.email) {
     // return await this.userModel.findOne({ email: request.user.email });
     // } else {
     // throw new Error('Invalid request');
     // }
+    console.log(request?.user);
     return this.users[0];
   }
 

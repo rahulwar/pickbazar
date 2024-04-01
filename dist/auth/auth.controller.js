@@ -55,8 +55,8 @@ let AuthController = class AuthController {
     verifyForgetPassword(verifyForgetPasswordDto) {
         return this.authService.verifyForgetPasswordToken(verifyForgetPasswordDto);
     }
-    me() {
-        return this.authService.me();
+    me(request) {
+        return this.authService.me(request);
     }
     addWalletPoints(addPointsDto, request) {
         return this.authService.me();
@@ -159,8 +159,9 @@ __decorate([
     (0, common_1.Get)('me'),
     (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard),
     openapi.ApiResponse({ status: 200, type: require("../users/entities/user.entity").User }),
+    __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", []),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], AuthController.prototype, "me", null);
 __decorate([

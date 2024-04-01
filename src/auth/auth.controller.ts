@@ -67,8 +67,8 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(JwtAuthGuard)
-  me() {
-    return this.authService.me();
+  me(@Req() request) {
+    return this.authService.me(request);
   }
   @Post('add-points')
   @UseGuards(JwtAuthGuard)

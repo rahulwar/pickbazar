@@ -72,7 +72,6 @@ let AuthService = class AuthService {
         }
         const payload = { email: user.email, sub: user.id };
         const jwtToken = this.jwtService.sign(payload);
-        console.log(jwtToken);
         return {
             token: jwtToken,
             permissions: user.permissions,
@@ -133,15 +132,10 @@ let AuthService = class AuthService {
         };
     }
     me(request) {
+        console.log(request === null || request === void 0 ? void 0 : request.user);
         return this.users[0];
     }
 };
-__decorate([
-    __param(0, (0, common_1.Req)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
-    __metadata("design:returntype", user_entity_1.User)
-], AuthService.prototype, "me", null);
 AuthService = __decorate([
     (0, common_1.Injectable)(),
     __param(1, (0, mongoose_1.InjectModel)(user_1.UsersModel.name)),

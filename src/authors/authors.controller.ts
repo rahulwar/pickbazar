@@ -14,6 +14,7 @@ import { GetTopAuthorsDto } from './dto/get-top-authors.dto';
 import { Author } from './entities/author.entity';
 import { UpdateAuthorDto } from './dto/update-author.dto';
 import { CreateAuthorDto } from './dto/create-author.dto';
+import { AuthorModel } from './schema/author';
 
 @Controller('authors')
 export class AuthorsController {
@@ -25,23 +26,23 @@ export class AuthorsController {
   }
 
   @Get()
-  async getAuthors(@Query() query: GetAuthorDto): Promise<AuthorPaginator> {
+  async getAuthors(@Query() query: GetAuthorDto) {
     return this.authorsService.getAuthors(query);
   }
 
   @Get(':slug')
-  async getAuthorBySlug(@Param('slug') slug: string): Promise<Author> {
+  async getAuthorBySlug(@Param('slug') slug: string): Promise<AuthorModel> {
     return this.authorsService.getAuthorBySlug(slug);
   }
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateAuthorDto: UpdateAuthorDto) {
-    return this.authorsService.update(+id, updateAuthorDto);
+    return this.authorsService.update(id, updateAuthorDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.authorsService.remove(+id);
+    return this.authorsService.remove(id);
   }
 }
 
@@ -50,7 +51,7 @@ export class TopAuthors {
   constructor(private authorsService: AuthorsService) {}
 
   @Get()
-  getTopAuthors(@Query() query: GetTopAuthorsDto): Promise<Author[]> {
+  getTopAuthors(@Query() query: GetTopAuthorsDto): Promise<AuthorModel[]> {
     return this.authorsService.getTopAuthors(query);
   }
 }

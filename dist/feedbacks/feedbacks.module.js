@@ -10,12 +10,19 @@ exports.FeedbackModule = void 0;
 const common_1 = require("@nestjs/common");
 const feedbacks_controller_1 = require("./feedbacks.controller");
 const feedbacks_service_1 = require("./feedbacks.service");
+const mongoose_1 = require("@nestjs/mongoose");
+const feedback_1 = require("./schema/feedback");
 let FeedbackModule = class FeedbackModule {
 };
 FeedbackModule = __decorate([
     (0, common_1.Module)({
         controllers: [feedbacks_controller_1.FeedbackController],
         providers: [feedbacks_service_1.FeedbackService],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: feedback_1.FeedbackModel.name, schema: feedback_1.FeedbackSchema },
+            ]),
+        ],
     })
 ], FeedbackModule);
 exports.FeedbackModule = FeedbackModule;
