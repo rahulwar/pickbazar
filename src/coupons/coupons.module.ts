@@ -6,6 +6,9 @@ import {
   DisapproveCouponController,
 } from './coupons.controller';
 
+import { MongooseModule } from '@nestjs/mongoose';
+import { CouponModel, CouponSchema } from './schema/coupon';
+
 @Module({
   controllers: [
     CouponsController,
@@ -13,5 +16,10 @@ import {
     DisapproveCouponController,
   ],
   providers: [CouponsService],
+  imports: [
+    MongooseModule.forFeature([
+      { name: CouponModel.name, schema: CouponSchema },
+    ]),
+  ],
 })
 export class CouponsModule {}

@@ -50,12 +50,12 @@ export class CouponsController {
     @Param('id') id: string,
     @Body() updateCouponDto: UpdateCouponDto,
   ) {
-    return this.couponsService.update(+id, updateCouponDto);
+    return this.couponsService.update(id, updateCouponDto);
   }
 
   @Delete(':id')
   deleteCoupon(@Param('id') id: string) {
-    return this.couponsService.remove(+id);
+    return this.couponsService.remove(id);
   }
 }
 
