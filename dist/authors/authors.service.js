@@ -5,6 +5,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,6 +22,9 @@ const authors_json_1 = __importDefault(require("../db/pickbazar/authors.json"));
 const author_entity_1 = require("./entities/author.entity");
 const fuse_js_1 = __importDefault(require("fuse.js"));
 const paginate_1 = require("../common/pagination/paginate");
+const mongoose_1 = require("@nestjs/mongoose");
+const author_1 = require("./schema/author");
+const mongoose_2 = __importDefault(require("mongoose"));
 const authors = (0, class_transformer_1.plainToClass)(author_entity_1.Author, authors_json_1.default);
 const options = {
     keys: ['name', 'slug'],
@@ -23,50 +32,62 @@ const options = {
 };
 const fuse = new fuse_js_1.default(authors, options);
 let AuthorsService = class AuthorsService {
-    constructor() {
+    constructor(authorModel) {
+        this.authorModel = authorModel;
         this.authors = authors;
     }
-    create(createAuthorDto) {
-        return this.authors[0];
+    async create(createAuthorDto) {
+        return await this.authorModel.create(createAuthorDto);
     }
-    getAuthors({ page, limit, search }) {
-        var _a;
+    async getAuthors({ page, limit, search }) {
         if (!page)
             page = 1;
         if (!limit)
             limit = 30;
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
-        let data = this.authors;
+        let query = {};
         if (search) {
             const parseSearchParams = search.split(';');
             for (const searchParam of parseSearchParams) {
                 const [key, value] = searchParam.split(':');
-                data = (_a = fuse.search(value)) === null || _a === void 0 ? void 0 : _a.map(({ item }) => item);
+                query[key] = value;
             }
         }
-        const results = data.slice(startIndex, endIndex);
+        const totalData = await this.authorModel.countDocuments(query);
+        const results = await this.authorModel
+            .find(query)
+            .skip(startIndex)
+            .limit(limit)
+            .exec();
         const url = `/authors?search=${search}&limit=${limit}`;
-        return Object.assign({ data: results }, (0, paginate_1.paginate)(data.length, page, limit, results.length, url));
+        return Object.assign({ data: results }, (0, paginate_1.paginate)(totalData, page, limit, results.length, url));
     }
-    getAuthorBySlug(slug) {
-        return this.authors.find((p) => p.slug === slug);
-    }
-    async getTopAuthors({ limit = 10 }) {
-        return this.authors.slice(0, limit);
-    }
-    update(id, updateAuthorDto) {
-        var _a;
-        const author = this.authors.find((p) => p.id === Number(id));
-        author.is_approved = (_a = updateAuthorDto.is_approved) !== null && _a !== void 0 ? _a : true;
+    async getAuthorBySlug(slug) {
+        const author = await this.authorModel.findOne({ slug: slug });
+        if (!author) {
+            throw new Error(`Author for given slug ${slug} not found`);
+        }
         return author;
     }
+    async getTopAuthors({ limit = 10, }) {
+        return await this.authorModel.find().limit(limit);
+    }
+    async update(id, updateAuthorDto) {
+        var _a;
+        const author = await this.authorModel.findById(id);
+        author.is_approved = (_a = updateAuthorDto.is_approved) !== null && _a !== void 0 ? _a : true;
+        await author.save();
+        return await this.authorModel.findById(id);
+    }
     remove(id) {
-        return `This action removes a #${id} product`;
+        return this.authorModel.deleteOne({ _id: id });
     }
 };
 AuthorsService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_1.InjectModel)(author_1.AuthorModel.name)),
+    __metadata("design:paramtypes", [mongoose_2.default.Model])
 ], AuthorsService);
 exports.AuthorsService = AuthorsService;
 //# sourceMappingURL=authors.service.js.map

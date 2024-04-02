@@ -10,12 +10,19 @@ exports.AttributesModule = void 0;
 const common_1 = require("@nestjs/common");
 const attributes_service_1 = require("./attributes.service");
 const attributes_controller_1 = require("./attributes.controller");
+const mongoose_1 = require("@nestjs/mongoose");
+const attributes_1 = require("./schema/attributes");
 let AttributesModule = class AttributesModule {
 };
 AttributesModule = __decorate([
     (0, common_1.Module)({
         controllers: [attributes_controller_1.AttributesController],
         providers: [attributes_service_1.AttributesService],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: attributes_1.AttributesModel.name, schema: attributes_1.AttributesSchema },
+            ]),
+        ],
     })
 ], AttributesModule);
 exports.AttributesModule = AttributesModule;

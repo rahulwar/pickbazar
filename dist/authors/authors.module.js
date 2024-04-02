@@ -10,12 +10,19 @@ exports.AuthorsModule = void 0;
 const common_1 = require("@nestjs/common");
 const authors_service_1 = require("./authors.service");
 const authors_controller_1 = require("./authors.controller");
+const mongoose_1 = require("@nestjs/mongoose");
+const author_1 = require("./schema/author");
 let AuthorsModule = class AuthorsModule {
 };
 AuthorsModule = __decorate([
     (0, common_1.Module)({
         controllers: [authors_controller_1.AuthorsController, authors_controller_1.TopAuthors],
         providers: [authors_service_1.AuthorsService],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: author_1.AuthorModel.name, schema: author_1.AuthorSchema },
+            ]),
+        ],
     })
 ], AuthorsModule);
 exports.AuthorsModule = AuthorsModule;

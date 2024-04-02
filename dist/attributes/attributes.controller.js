@@ -32,15 +32,15 @@ let AttributesController = class AttributesController {
         return this.attributesService.findOne(param);
     }
     update(id, updateAttributeDto) {
-        return this.attributesService.update(+id, updateAttributeDto);
+        return this.attributesService.update(id, updateAttributeDto);
     }
     remove(id) {
-        return this.attributesService.remove(+id);
+        return this.attributesService.remove(id);
     }
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/attribute.entity").Attribute }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_attribute_dto_1.CreateAttributeDto]),
@@ -48,14 +48,14 @@ __decorate([
 ], AttributesController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: [require("./entities/attribute.entity").Attribute] }),
+    openapi.ApiResponse({ status: 200, type: [Object] }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], AttributesController.prototype, "findAll", null);
 __decorate([
     (0, common_1.Get)(':param'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/attribute.entity").Attribute }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('param')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -63,7 +63,7 @@ __decorate([
 ], AttributesController.prototype, "findOne", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/attribute.entity").Attribute }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -72,7 +72,7 @@ __decorate([
 ], AttributesController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

@@ -10,6 +10,8 @@ exports.CouponsModule = void 0;
 const common_1 = require("@nestjs/common");
 const coupons_service_1 = require("./coupons.service");
 const coupons_controller_1 = require("./coupons.controller");
+const mongoose_1 = require("@nestjs/mongoose");
+const coupon_1 = require("./schema/coupon");
 let CouponsModule = class CouponsModule {
 };
 CouponsModule = __decorate([
@@ -20,6 +22,11 @@ CouponsModule = __decorate([
             coupons_controller_1.DisapproveCouponController,
         ],
         providers: [coupons_service_1.CouponsService],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: coupon_1.CouponModel.name, schema: coupon_1.CouponSchema },
+            ]),
+        ],
     })
 ], CouponsModule);
 exports.CouponsModule = CouponsModule;

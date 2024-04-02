@@ -5,6 +5,12 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -16,6 +22,9 @@ const coupon_entity_1 = require("./entities/coupon.entity");
 const coupons_json_1 = __importDefault(require("../db/pickbazar/coupons.json"));
 const fuse_js_1 = __importDefault(require("fuse.js"));
 const paginate_1 = require("../common/pagination/paginate");
+const mongoose_1 = require("@nestjs/mongoose");
+const coupon_1 = require("./schema/coupon");
+const mongoose_2 = __importDefault(require("mongoose"));
 const coupons = (0, class_transformer_1.plainToClass)(coupon_entity_1.Coupon, coupons_json_1.default);
 const options = {
     keys: ['code'],
@@ -23,14 +32,18 @@ const options = {
 };
 const fuse = new fuse_js_1.default(coupons, options);
 let CouponsService = class CouponsService {
-    constructor() {
+    constructor(couponModel) {
+        this.couponModel = couponModel;
         this.coupons = coupons;
     }
-    create(createCouponDto) {
-        return this.coupons[0];
+    async create(createCouponDto) {
+        const coupon = await this.couponModel.find({ code: createCouponDto.code });
+        if (coupon) {
+            throw new Error(`Coupon ${createCouponDto.code} already exists`);
+        }
+        return await this.couponModel.create(createCouponDto);
     }
-    getCoupons({ search, limit, page, shop_id }) {
-        var _a;
+    async getCoupons({ search, limit, page, shop_id }) {
         if (!page)
             page = 1;
         if (!limit)
@@ -38,8 +51,9 @@ let CouponsService = class CouponsService {
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
         let data = this.coupons;
+        let query = {};
         if (shop_id) {
-            data = this.coupons.filter((p) => p.shop_id === Number(shop_id));
+            query['shop_id'] = shop_id;
         }
         if (search) {
             const parseSearchParams = search.split(';');
@@ -47,65 +61,70 @@ let CouponsService = class CouponsService {
             for (const searchParam of parseSearchParams) {
                 const [key, value] = searchParam.split(':');
                 if (key !== 'slug') {
-                    searchText.push({
-                        [key]: value,
-                    });
+                    query[key] = value;
                 }
             }
-            data = (_a = fuse
-                .search({
-                $and: searchText,
-            })) === null || _a === void 0 ? void 0 : _a.map(({ item }) => item);
         }
-        const results = data.slice(startIndex, endIndex);
+        const results = await this.couponModel
+            .find(query)
+            .skip(startIndex)
+            .limit(limit)
+            .exec();
+        const totalCount = await this.couponModel.countDocuments(query);
         const url = `/coupons?search=${search}&limit=${limit}`;
-        return Object.assign({ data: results }, (0, paginate_1.paginate)(data.length, page, limit, results.length, url));
+        return Object.assign({ data: results }, (0, paginate_1.paginate)(totalCount, page, limit, results.length, url));
     }
-    getCoupon(param, language) {
-        return this.coupons.find((p) => p.code === param);
-    }
-    update(id, updateCouponDto) {
-        return this.coupons[0];
-    }
-    remove(id) {
-        return `This action removes a #${id} coupon`;
-    }
-    verifyCoupon(code) {
-        return {
-            is_valid: true,
-            coupon: {
-                id: 9,
-                code: code,
-                description: null,
-                image: {
-                    id: 925,
-                    original: 'https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/925/5x2x.png',
-                    thumbnail: 'https://pickbazarlaravel.s3.ap-southeast-1.amazonaws.com/925/conversions/5x2x-thumbnail.jpg',
-                },
-                type: 'fixed',
-                amount: 5,
-                active_from: '2021-03-28T05:46:42.000Z',
-                expire_at: '2024-06-23T05:46:42.000Z',
-                created_at: '2021-03-28T05:48:16.000000Z',
-                updated_at: '2021-08-19T03:58:34.000000Z',
-                deleted_at: null,
-                is_valid: true,
-            },
-        };
-    }
-    approveCoupon(id) {
-        const coupon = this.coupons.find((s) => s.id === Number(id));
-        coupon.is_approve = true;
+    async getCoupon(param, language) {
+        const coupon = await this.couponModel.findOne({ code: param });
+        if (!coupon) {
+            throw new Error(`Coupon not found ${param}`);
+        }
         return coupon;
     }
-    disapproveCoupon(id) {
-        const coupon = this.coupons.find((s) => s.id === Number(id));
+    async update(id, updateCouponDto) {
+        const couponExist = await this.couponModel.findOne({ _id: id });
+        if (!couponExist) {
+            throw new Error(`Coupon not found ${id}`);
+        }
+        await this.couponModel.updateOne({ _id: id }, { $set: updateCouponDto });
+        return await this.couponModel.findById(id);
+    }
+    async remove(id) {
+        return await this.couponModel.deleteOne({ _id: id });
+    }
+    async verifyCoupon(code) {
+        const coupon = await this.couponModel.findOne({ code: code });
+        if (!coupon) {
+            throw new Error(`Coupon not found`);
+        }
+        let is_valid = false;
+        if (new Date(coupon.expire_at).getTime() > Date.now()) {
+            is_valid = true;
+        }
+        coupon.is_valid = is_valid;
+        await coupon.save();
+        return {
+            is_valid,
+            coupon: coupon,
+        };
+    }
+    async approveCoupon(id) {
+        const coupon = await this.couponModel.findById(id);
+        coupon.is_approve = true;
+        await coupon.save();
+        return coupon;
+    }
+    async disapproveCoupon(id) {
+        const coupon = await this.couponModel.findById(id);
         coupon.is_approve = false;
+        await coupon.save();
         return coupon;
     }
 };
 CouponsService = __decorate([
-    (0, common_1.Injectable)()
+    (0, common_1.Injectable)(),
+    __param(0, (0, mongoose_1.InjectModel)(coupon_1.CouponModel.name)),
+    __metadata("design:paramtypes", [mongoose_2.default.Model])
 ], CouponsService);
 exports.CouponsService = CouponsService;
 //# sourceMappingURL=coupons.service.js.map

@@ -1,11 +1,16 @@
 import { CreateCouponDto } from './dto/create-coupon.dto';
 import { UpdateCouponDto } from './dto/update-coupon.dto';
-import { Coupon } from './entities/coupon.entity';
 import { GetCouponsDto } from './dto/get-coupons.dto';
+import { CouponModel } from './schema/coupon';
+import mongoose from 'mongoose';
 export declare class CouponsService {
+    private couponModel;
     private coupons;
-    create(createCouponDto: CreateCouponDto): Coupon;
-    getCoupons({ search, limit, page, shop_id }: GetCouponsDto): {
+    constructor(couponModel: mongoose.Model<CouponModel>);
+    create(createCouponDto: CreateCouponDto): Promise<mongoose.Document<unknown, {}, CouponModel> & CouponModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    getCoupons({ search, limit, page, shop_id }: GetCouponsDto): Promise<{
         count: number;
         current_page: number;
         firstItem: number;
@@ -17,32 +22,25 @@ export declare class CouponsService {
         last_page_url: string;
         next_page_url: string;
         prev_page_url: string;
-        data: Coupon[];
-    };
-    getCoupon(param: string, language: string): Coupon;
-    update(id: number, updateCouponDto: UpdateCouponDto): Coupon;
-    remove(id: number): string;
-    verifyCoupon(code: string): {
+        data: (mongoose.Document<unknown, {}, CouponModel> & CouponModel & {
+            _id: mongoose.Types.ObjectId;
+        })[];
+    }>;
+    getCoupon(param: string, language: string): Promise<CouponModel>;
+    update(id: string, updateCouponDto: UpdateCouponDto): Promise<mongoose.Document<unknown, {}, CouponModel> & CouponModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    remove(id: string): Promise<mongoose.mongo.DeleteResult>;
+    verifyCoupon(code: string): Promise<{
         is_valid: boolean;
-        coupon: {
-            id: number;
-            code: string;
-            description: any;
-            image: {
-                id: number;
-                original: string;
-                thumbnail: string;
-            };
-            type: string;
-            amount: number;
-            active_from: string;
-            expire_at: string;
-            created_at: string;
-            updated_at: string;
-            deleted_at: any;
-            is_valid: boolean;
+        coupon: mongoose.Document<unknown, {}, CouponModel> & CouponModel & {
+            _id: mongoose.Types.ObjectId;
         };
-    };
-    approveCoupon(id: number): Coupon;
-    disapproveCoupon(id: number): Coupon;
+    }>;
+    approveCoupon(id: string): Promise<mongoose.Document<unknown, {}, CouponModel> & CouponModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
+    disapproveCoupon(id: string): Promise<mongoose.Document<unknown, {}, CouponModel> & CouponModel & {
+        _id: mongoose.Types.ObjectId;
+    }>;
 }

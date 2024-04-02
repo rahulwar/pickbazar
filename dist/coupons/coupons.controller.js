@@ -39,15 +39,15 @@ let CouponsController = class CouponsController {
         return this.couponsService.verifyCoupon(code);
     }
     updateCoupon(id, updateCouponDto) {
-        return this.couponsService.update(+id, updateCouponDto);
+        return this.couponsService.update(id, updateCouponDto);
     }
     deleteCoupon(id) {
-        return this.couponsService.remove(+id);
+        return this.couponsService.remove(id);
     }
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/coupon.entity").Coupon }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_coupon_dto_1.CreateCouponDto]),
@@ -63,7 +63,7 @@ __decorate([
 ], CouponsController.prototype, "getCoupons", null);
 __decorate([
     (0, common_1.Get)(':param'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/coupon.entity").Coupon }),
+    openapi.ApiResponse({ status: 200, type: require("./schema/coupon").CouponModel }),
     __param(0, (0, common_1.Param)('param')),
     __param(1, (0, common_1.Query)('language')),
     __metadata("design:type", Function),
@@ -72,7 +72,7 @@ __decorate([
 ], CouponsController.prototype, "getCoupon", null);
 __decorate([
     (0, common_1.Get)(':id/verify'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/coupon.entity").Coupon }),
+    openapi.ApiResponse({ status: 200, type: require("./schema/coupon").CouponModel }),
     __param(0, (0, common_1.Param)('param')),
     __param(1, (0, common_1.Query)('language')),
     __metadata("design:type", Function),
@@ -89,7 +89,7 @@ __decorate([
 ], CouponsController.prototype, "verifyCoupon", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/coupon.entity").Coupon }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -98,7 +98,7 @@ __decorate([
 ], CouponsController.prototype, "updateCoupon", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -119,7 +119,7 @@ let DisapproveCouponController = class DisapproveCouponController {
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/coupon.entity").Coupon }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -140,7 +140,7 @@ let ApproveCouponController = class ApproveCouponController {
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/coupon.entity").Coupon }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),

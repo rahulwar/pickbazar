@@ -10,12 +10,19 @@ exports.AddressesModule = void 0;
 const common_1 = require("@nestjs/common");
 const addresses_service_1 = require("./addresses.service");
 const addresses_controller_1 = require("./addresses.controller");
+const mongoose_1 = require("@nestjs/mongoose");
+const address_1 = require("./schema/address");
 let AddressesModule = class AddressesModule {
 };
 AddressesModule = __decorate([
     (0, common_1.Module)({
         controllers: [addresses_controller_1.AddressesController],
         providers: [addresses_service_1.AddressesService],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: address_1.AddressModel.name, schema: address_1.AddressSchema },
+            ]),
+        ],
     })
 ], AddressesModule);
 exports.AddressesModule = AddressesModule;

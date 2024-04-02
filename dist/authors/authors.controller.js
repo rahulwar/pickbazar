@@ -34,15 +34,15 @@ let AuthorsController = class AuthorsController {
         return this.authorsService.getAuthorBySlug(slug);
     }
     update(id, updateAuthorDto) {
-        return this.authorsService.update(+id, updateAuthorDto);
+        return this.authorsService.update(id, updateAuthorDto);
     }
     remove(id) {
-        return this.authorsService.remove(+id);
+        return this.authorsService.remove(id);
     }
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/author.entity").Author }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_author_dto_1.CreateAuthorDto]),
@@ -50,7 +50,7 @@ __decorate([
 ], AuthorsController.prototype, "createAuthor", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: require("./dto/get-author.dto").AuthorPaginator }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [get_author_dto_1.GetAuthorDto]),
@@ -58,7 +58,7 @@ __decorate([
 ], AuthorsController.prototype, "getAuthors", null);
 __decorate([
     (0, common_1.Get)(':slug'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/author.entity").Author }),
+    openapi.ApiResponse({ status: 200, type: require("./schema/author").AuthorModel }),
     __param(0, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -66,7 +66,7 @@ __decorate([
 ], AuthorsController.prototype, "getAuthorBySlug", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/author.entity").Author }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -75,7 +75,7 @@ __decorate([
 ], AuthorsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200 }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -96,7 +96,7 @@ let TopAuthors = class TopAuthors {
 };
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: [require("./entities/author.entity").Author] }),
+    openapi.ApiResponse({ status: 200, type: [require("./schema/author").AuthorModel] }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [get_top_authors_dto_1.GetTopAuthorsDto]),

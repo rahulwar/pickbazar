@@ -29,18 +29,18 @@ let AddressesController = class AddressesController {
         return this.addressesService.findAll();
     }
     address(id) {
-        return this.addressesService.findOne(+id);
+        return this.addressesService.findOne(id);
     }
     updateAddress(id, updateAddressDto) {
-        return this.addressesService.update(+id, updateAddressDto);
+        return this.addressesService.update(id, updateAddressDto);
     }
     deleteAddress(id) {
-        return this.addressesService.remove(+id);
+        return this.addressesService.remove(id);
     }
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: String }),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [create_address_dto_1.CreateAddressDto]),
@@ -48,14 +48,14 @@ __decorate([
 ], AddressesController.prototype, "createAddress", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: [Object] }),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)
 ], AddressesController.prototype, "addresses", null);
 __decorate([
     (0, common_1.Get)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -63,7 +63,7 @@ __decorate([
 ], AddressesController.prototype, "address", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -72,7 +72,7 @@ __decorate([
 ], AddressesController.prototype, "updateAddress", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: [Object] }),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
