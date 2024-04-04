@@ -11,6 +11,7 @@ import {
 } from './users.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { UsersModel, UsersSchema } from './schema/user';
+import { ShopModel, ShopSchema } from 'src/shops/schema/shop';
 
 @Module({
   controllers: [

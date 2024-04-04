@@ -158,7 +158,7 @@ __decorate([
 __decorate([
     (0, common_1.Get)('me'),
     (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard),
-    openapi.ApiResponse({ status: 200, type: require("../users/entities/user.entity").User }),
+    openapi.ApiResponse({ status: 200, type: require("../users/schema/user").UsersModel }),
     __param(0, (0, common_1.Req)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
@@ -167,7 +167,7 @@ __decorate([
 __decorate([
     (0, common_1.Post)('add-points'),
     (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard),
-    openapi.ApiResponse({ status: 201, type: require("../users/entities/user.entity").User }),
+    openapi.ApiResponse({ status: 201, type: require("../users/schema/user").UsersModel }),
     __param(0, (0, common_1.Body)()),
     __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),

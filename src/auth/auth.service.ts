@@ -22,6 +22,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { UsersModel } from 'src/users/schema/user';
 import mongoose from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
+import { ShopModel } from 'src/shops/schema/shop';
 const users = plainToClass(User, usersJson);
 
 @Injectable()
@@ -46,8 +47,12 @@ export class AuthService {
     const payload = {
       email: user.email,
       sub: user.id,
+      permissions:
+        createUserInput.email === 'admin@demo.com'
+          ? ['super_admin', 'customer']
+          : [createUserInput.permission],
     };
-    const token = this.jwtService.sign(payload);
+    const token = await this.jwtService.sign(payload);
     if (createUserInput.email === 'admin@demo.com') {
       return {
         token: token,
@@ -67,11 +72,11 @@ export class AuthService {
     //   updated_at: new Date(),
     // };
 
-    this.users.push(user);
-    return {
-      token: 'jwt token',
-      permissions: ['super_admin', 'customer'],
-    };
+    // this.users.push(user);
+    // return {
+    //   token: 'jwt token',
+    //   permissions: ['super_admin', 'customer'],
+    // };
   }
   async login(loginInput: LoginDto): Promise<AuthResponse> {
     const user = await this.userModel.findOne({ email: loginInput.email });
@@ -89,8 +94,12 @@ export class AuthService {
         role: '',
       };
     }
-    const payload = { email: user.email, sub: user.id };
-    const jwtToken = this.jwtService.sign(payload);
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      permissions: user.permissions,
+    };
+    const jwtToken = await this.jwtService.sign(payload);
 
     return {
       token: jwtToken,
@@ -197,14 +206,16 @@ export class AuthService {
   // public getUser(getUserArgs: GetUserArgs): User {
   //   return this.users.find((user) => user.id === getUserArgs.id);
   // }
-  me(request?: any): User {
-    // if (request && request.user && request.user.email) {
-    // return await this.userModel.findOne({ email: request.user.email });
-    // } else {
-    // throw new Error('Invalid request');
-    // }
-    console.log(request?.user);
-    return this.users[0];
+  async me(request?: any): Promise<UsersModel> {
+    if (request && request.user && request.user.email) {
+      return await this.userModel
+        .findOne({ email: request.user.email })
+        .populate({ path: 'shops', model: ShopModel.name });
+    } else {
+      throw new Error('Invalid request');
+    }
+    // console.log(request?.user);
+    // return this.users[0];
   }
 
   // updateUser(id: number, updateUserInput: UpdateUserInput) {

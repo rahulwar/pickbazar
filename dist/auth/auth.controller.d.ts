@@ -14,8 +14,8 @@ export declare class AuthController {
     changePassword(changePasswordDto: ChangePasswordDto): Promise<import("./dto/create-auth.dto").CoreResponse>;
     logout(): Promise<boolean>;
     verifyForgetPassword(verifyForgetPasswordDto: VerifyForgetPasswordDto): Promise<import("./dto/create-auth.dto").CoreResponse>;
-    me(request: any): import("../users/entities/user.entity").User;
-    addWalletPoints(addPointsDto: any, request: any): import("../users/entities/user.entity").User;
+    me(request: any): Promise<import("../users/schema/user").UsersModel>;
+    addWalletPoints(addPointsDto: any, request: any): Promise<import("../users/schema/user").UsersModel>;
     contactUs(addPointsDto: any): {
         success: boolean;
         message: string;

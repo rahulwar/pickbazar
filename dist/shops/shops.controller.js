@@ -18,77 +18,105 @@ const common_1 = require("@nestjs/common");
 const shops_service_1 = require("./shops.service");
 const create_shop_dto_1 = require("./dto/create-shop.dto");
 const update_shop_dto_1 = require("./dto/update-shop.dto");
-const get_staffs_dto_1 = require("./dto/get-staffs.dto");
+const get_shops_dto_1 = require("./dto/get-shops.dto");
+const JwtAuthGuard_1 = require("../middleware/JwtAuthGuard");
+const AdminShopOwnerGuard_1 = require("../middleware/AdminShopOwnerGuard");
 let ShopsController = class ShopsController {
     constructor(shopsService) {
         this.shopsService = shopsService;
     }
-    create(createShopDto) {
-        return this.shopsService.create(createShopDto);
+    async create(request, createShopDto) {
+        return await this.shopsService.create(createShopDto, request);
     }
-    async getShop(slug) {
-        return this.shopsService.getShop(slug);
+    async getShops(request, query) {
+        return await this.shopsService.getShops(query, request);
     }
-    update(id, updateShopDto) {
-        return this.shopsService.update(id, updateShopDto);
+    async getShop(request, slug) {
+        return this.shopsService.getShop(slug, request);
     }
-    remove(id) {
-        return this.shopsService.remove(id);
+    update(request, id, updateShopDto) {
+        return this.shopsService.update(id, updateShopDto, request);
     }
-    approveShop(id) {
-        return this.shopsService.approve(id);
+    remove(request, id) {
+        return this.shopsService.remove(id, request);
     }
-    disapproveShop(id) {
-        return this.shopsService.approve(id);
+    approveShop(request, id) {
+        return this.shopsService.approve(id, request);
+    }
+    disapproveShop(request, id) {
+        return this.shopsService.approve(id, request);
     }
 };
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 201, type: Object }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_shop_dto_1.CreateShopDto]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:paramtypes", [Request, create_shop_dto_1.CreateShopDto]),
+    __metadata("design:returntype", Promise)
 ], ShopsController.prototype, "create", null);
 __decorate([
-    (0, common_1.Get)(':slug'),
-    openapi.ApiResponse({ status: 200, type: require("./schema/shop").ShopModel }),
-    __param(0, (0, common_1.Param)('slug')),
+    (0, common_1.Get)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
+    openapi.ApiResponse({ status: 200, type: require("./dto/get-shops.dto").ShopPaginator }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Request,
+        get_shops_dto_1.GetShopsDto]),
+    __metadata("design:returntype", Promise)
+], ShopsController.prototype, "getShops", null);
+__decorate([
+    (0, common_1.Get)(':slug'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
+    openapi.ApiResponse({ status: 200, type: require("./schema/shop").ShopModel }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('slug')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Request, String]),
     __metadata("design:returntype", Promise)
 ], ShopsController.prototype, "getShop", null);
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 200, type: Object }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_shop_dto_1.UpdateShopDto]),
+    __metadata("design:paramtypes", [Request, String, update_shop_dto_1.UpdateShopDto]),
     __metadata("design:returntype", void 0)
 ], ShopsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 200 }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Request, String]),
     __metadata("design:returntype", void 0)
 ], ShopsController.prototype, "remove", null);
 __decorate([
     (0, common_1.Post)('approve'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 201, type: String }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Request, String]),
     __metadata("design:returntype", void 0)
 ], ShopsController.prototype, "approveShop", null);
 __decorate([
     (0, common_1.Post)('disapprove'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 201, type: String }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Request, String]),
     __metadata("design:returntype", void 0)
 ], ShopsController.prototype, "disapproveShop", null);
 ShopsController = __decorate([
@@ -100,61 +128,59 @@ let StaffsController = class StaffsController {
     constructor(shopsService) {
         this.shopsService = shopsService;
     }
-    create(createShopDto) {
+    create(request, createShopDto) {
         return this.shopsService.create(createShopDto);
     }
-    async getStaffs(query) {
-        return this.shopsService.getStaffs(query);
+    async getShop(request, slug) {
+        return this.shopsService.getShop(slug, request);
     }
-    async getShop(slug) {
-        return this.shopsService.getShop(slug);
+    update(request, id, updateShopDto) {
+        return this.shopsService.update(id, updateShopDto, request);
     }
-    update(id, updateShopDto) {
-        return this.shopsService.update(id, updateShopDto);
-    }
-    remove(id) {
-        return this.shopsService.remove(id);
+    remove(request, id) {
+        return this.shopsService.remove(id, request);
     }
 };
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 201, type: Object }),
-    __param(0, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_shop_dto_1.CreateShopDto]),
+    __metadata("design:paramtypes", [Object, create_shop_dto_1.CreateShopDto]),
     __metadata("design:returntype", void 0)
 ], StaffsController.prototype, "create", null);
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200 }),
-    __param(0, (0, common_1.Query)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [get_staffs_dto_1.GetStaffsDto]),
-    __metadata("design:returntype", Promise)
-], StaffsController.prototype, "getStaffs", null);
-__decorate([
     (0, common_1.Get)(':slug'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 200, type: require("./schema/shop").ShopModel }),
-    __param(0, (0, common_1.Param)('slug')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", Promise)
 ], StaffsController.prototype, "getShop", null);
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 200, type: Object }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_shop_dto_1.UpdateShopDto]),
+    __metadata("design:paramtypes", [Object, String, update_shop_dto_1.UpdateShopDto]),
     __metadata("design:returntype", void 0)
 ], StaffsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 200 }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], StaffsController.prototype, "remove", null);
 StaffsController = __decorate([
@@ -166,16 +192,18 @@ let DisapproveShopController = class DisapproveShopController {
     constructor(shopsService) {
         this.shopsService = shopsService;
     }
-    async disapproveShop(id) {
-        return this.shopsService.disapproveShop(id);
+    async disapproveShop(request, id) {
+        return this.shopsService.disapproveShop(id, request);
     }
 };
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 201, type: Object }),
-    __param(0, (0, common_1.Body)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], DisapproveShopController.prototype, "disapproveShop", null);
 DisapproveShopController = __decorate([
@@ -187,16 +215,18 @@ let ApproveShopController = class ApproveShopController {
     constructor(shopsService) {
         this.shopsService = shopsService;
     }
-    async approveShop(id) {
-        return this.shopsService.approveShop(id);
+    async approveShop(request, id) {
+        return this.shopsService.approveShop(id, request);
     }
 };
 __decorate([
     (0, common_1.Post)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 201, type: Object }),
-    __param(0, (0, common_1.Body)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ApproveShopController.prototype, "approveShop", null);
 ApproveShopController = __decorate([
@@ -230,7 +260,21 @@ let NewShopsController = class NewShopsController {
     constructor(shopsService) {
         this.shopsService = shopsService;
     }
+    async getNewShops(request, query) {
+        return this.shopsService.getNewShops(query, request);
+    }
 };
+__decorate([
+    (0, common_1.Get)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
+    openapi.ApiResponse({ status: 200, type: require("./dto/get-shops.dto").ShopPaginator }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Request,
+        get_shops_dto_1.GetShopsDto]),
+    __metadata("design:returntype", Promise)
+], NewShopsController.prototype, "getNewShops", null);
 NewShopsController = __decorate([
     (0, common_1.Controller)('new-shops'),
     __metadata("design:paramtypes", [shops_service_1.ShopsService])

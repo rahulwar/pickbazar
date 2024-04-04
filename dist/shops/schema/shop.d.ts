@@ -28,7 +28,7 @@ import { Attachment } from 'src/common/entities/attachment.entity';
 import { UserAddress } from 'src/addresses/entities/address.entity';
 import { UsersModel } from 'src/users/schema/user';
 export declare class ShopModel extends Document {
-    owner_id: number;
+    owner_id: ShopModel;
     owner: UsersModel;
     staffs: UsersModel[];
     is_active: boolean;

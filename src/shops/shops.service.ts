@@ -30,19 +30,38 @@ export class ShopsService {
   constructor(
     @InjectModel(ShopModel.name)
     private Shopmodel: mongoose.Model<ShopModel>,
+
+    @InjectModel(UsersModel.name)
+    private userModel: mongoose.Model<UsersModel>,
   ) {}
 
-  async create(createShopDto: CreateShopDto) {
-    return await this.Shopmodel.create(createShopDto);
+  async create(createShopDto: CreateShopDto, request?: any) {
+    try {
+      const user = await this.userModel.findById(request.user.sub);
+      const shop = new this.Shopmodel(createShopDto);
+      shop.owner_id = user.id;
+      shop.owner = user.id;
+      await shop.save();
+      const shopArray = [...user.shops];
+      shopArray.push(shop.id);
+      user.shops = [...shopArray];
+      await user.save();
+      return shop;
+    } catch (error) {
+      throw new Error(error.message);
+    }
   }
 
-  async getShops({ search, limit, page }: GetShopsDto) {
+  async getShops({ search, limit, page }: GetShopsDto, request: any) {
     if (!page) page = 1;
 
     const startIndex = (page - 1) * limit;
     const endIndex = page * limit;
     // let data: Shop[] = this.shops;
     const query: any = {};
+    if (!request.user.permissions.includes('super_admin')) {
+      query['owner'] = request.user.sub;
+    }
 
     if (search) {
       const searchParams = search.split(';');
@@ -58,10 +77,16 @@ export class ShopsService {
     // }
     // const results = data.slice(startIndex, endIndex);
     const results = await this.Shopmodel.find(query)
-      .populate({
-        path: 'staffs',
-        model: UsersModel.name,
-      })
+      .populate([
+        {
+          path: 'staffs',
+          model: UsersModel.name,
+        },
+        {
+          path: 'owner',
+          model: UsersModel.name,
+        },
+      ])
       .skip(startIndex)
       .limit(limit)
       .exec();
@@ -98,11 +123,35 @@ export class ShopsService {
     };
   }
 
-  async getShop(slug: string): Promise<ShopModel> {
-    const shop = await this.Shopmodel.findOne({ slug: slug });
-    if (!shop) {
-      throw new Error('no shop found');
+  async getShop(slug: string, request: any): Promise<ShopModel> {
+    let shop;
+    if (request.user.permissions.includes('super_admin')) {
+      shop = await this.Shopmodel.findOne({ slug: slug }).populate([
+        {
+          path: 'staffs',
+          model: UsersModel.name,
+        },
+        {
+          path: 'owner',
+          model: UsersModel.name,
+        },
+      ]);
+    } else {
+      shop = await this.Shopmodel.findOne({
+        slug: slug,
+        owner: request.user.sub,
+      }).populate([
+        {
+          path: 'staffs',
+          model: UsersModel.name,
+        },
+        {
+          path: 'owner',
+          model: UsersModel.name,
+        },
+      ]);
     }
+
     // return this.shops.find((p) => p.slug === slug);
     return shop;
   }
@@ -164,40 +213,142 @@ export class ShopsService {
     return nearbyShops;
   }
 
-  async update(id: string, updateShopDto: UpdateShopDto) {
-    const shop = await this.Shopmodel.updateOne(
-      { _id: id },
-      { $set: updateShopDto },
-    );
-    return await this.Shopmodel.findById(id);
+  async update(id: string, updateShopDto: UpdateShopDto, request: any) {
+    if (request.user.permissions.includes('super_admin')) {
+      await this.Shopmodel.updateOne({ _id: id }, { $set: updateShopDto });
+    } else {
+      await this.Shopmodel.updateOne(
+        { _id: id, owner: request.user.sub },
+        { $set: updateShopDto },
+      );
+    }
+    return await this.Shopmodel.findById(id).populate([
+      {
+        path: 'staffs',
+        model: UsersModel.name,
+      },
+      {
+        path: 'owner',
+        model: UsersModel.name,
+      },
+    ]);
   }
 
-  approve(id: string) {
+  approve(id: string, request: any) {
     return `This action removes a #${id} shop`;
   }
 
-  async remove(id: string) {
+  async remove(id: string, request: any) {
+    // Determine if the user is an admin or shop owner
+    const isAdmin = request.user.permissions.includes('super_admin');
+    const isShopOwner = !isAdmin;
+
+    // Find the shop
+    const shop = await this.Shopmodel.findById(id);
+
+    if (!shop) {
+      throw new Error('Shop not found');
+    }
+
+    if (isAdmin) {
+      await this.userModel.updateMany(
+        { shops: { $in: [shop.id] } },
+        { $pull: { shops: shop.id } },
+      );
+    } else if (isShopOwner) {
+      await this.userModel.findByIdAndUpdate(request.user.sub, {
+        $pull: { shops: shop.id },
+      });
+    } else {
+      throw new Error('Unauthorized');
+    }
+
     await this.Shopmodel.deleteOne({ _id: id });
   }
 
-  async disapproveShop(id: string) {
+  async disapproveShop(id: string, request: any) {
     // const shop = this.shops.find((s) => s.id === Number(id));
     // shop.is_active = false;
 
-    const shop = await this.Shopmodel.findById(id);
-    shop.is_active = false;
-    await shop.save();
+    if (request.user.permissions.includes('super_admin')) {
+      const shop = await this.Shopmodel.findById(id).populate([
+        {
+          path: 'staffs',
+          model: UsersModel.name,
+        },
+        {
+          path: 'owner',
+          model: UsersModel.name,
+        },
+      ]);
+      shop.is_active = false;
+      await shop.save();
 
-    return shop;
+      return shop;
+    }
   }
 
-  async approveShop(id: string) {
+  async approveShop(id: string, request: any) {
     // const shop = this.shops.find((s) => s.id === Number(id));
     // shop.is_active = true;
-    const shop = await this.Shopmodel.findById(id);
-    shop.is_active = true;
-    await shop.save();
+    if (request.user.permissions.includes('super_admin')) {
+      const shop = await this.Shopmodel.findById(id).populate([
+        {
+          path: 'staffs',
+          model: UsersModel.name,
+        },
+        {
+          path: 'owner',
+          model: UsersModel.name,
+        },
+      ]);
+      shop.is_active = true;
+      await shop.save();
+      return shop;
+    }
+  }
+  async getNewShops({ search, limit, page }: GetShopsDto, request: any) {
+    if (!page) page = 1;
+    if (request.user.permissions.includes('super_admin')) {
+      const startIndex = (page - 1) * limit;
+      const endIndex = page * limit;
 
-    return shop;
+      let query = {};
+      if (search) {
+        const searchParams = search.split(';');
+        for (const searchParam of searchParams) {
+          const [key, value] = searchParam.split(':');
+          query[key] = value;
+        }
+      }
+
+      const totalDocs = await this.Shopmodel.countDocuments({
+        ...query,
+        is_active: false,
+      });
+
+      const newShops = await this.Shopmodel.find({
+        is_active: false,
+        ...query,
+      })
+        .populate([
+          {
+            path: 'staffs',
+            model: UsersModel.name,
+          },
+          {
+            path: 'owner',
+            model: UsersModel.name,
+          },
+        ])
+        .skip(startIndex)
+        .limit(limit);
+      const url = `/new-shops?search=${search}&limit=${limit}`;
+
+      return {
+        data: newShops,
+        ...paginate(totalDocs, page, limit, newShops.length, url),
+      };
+    }
   }
 }

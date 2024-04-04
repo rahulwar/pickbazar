@@ -19,8 +19,8 @@ const user_1 = require("../../users/schema/user");
 let ShopModel = class ShopModel extends mongoose_2.Document {
 };
 __decorate([
-    (0, mongoose_1.Prop)(),
-    __metadata("design:type", Number)
+    (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'ShopModel' }),
+    __metadata("design:type", ShopModel)
 ], ShopModel.prototype, "owner_id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ type: mongoose_2.Types.ObjectId, ref: 'UsersModel' }),
@@ -31,7 +31,7 @@ __decorate([
     __metadata("design:type", Array)
 ], ShopModel.prototype, "staffs", void 0);
 __decorate([
-    (0, mongoose_1.Prop)(),
+    (0, mongoose_1.Prop)({ default: false }),
     __metadata("design:type", Boolean)
 ], ShopModel.prototype, "is_active", void 0);
 __decorate([

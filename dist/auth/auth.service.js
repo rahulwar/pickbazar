@@ -24,6 +24,7 @@ const mongoose_1 = require("@nestjs/mongoose");
 const user_1 = require("../users/schema/user");
 const mongoose_2 = __importDefault(require("mongoose"));
 const jwt_1 = require("@nestjs/jwt");
+const shop_1 = require("../shops/schema/shop");
 const users = (0, class_transformer_1.plainToClass)(user_entity_1.User, users_json_1.default);
 let AuthService = class AuthService {
     constructor(jwtService, userModel) {
@@ -42,8 +43,11 @@ let AuthService = class AuthService {
         const payload = {
             email: user.email,
             sub: user.id,
+            permissions: createUserInput.email === 'admin@demo.com'
+                ? ['super_admin', 'customer']
+                : [createUserInput.permission],
         };
-        const token = this.jwtService.sign(payload);
+        const token = await this.jwtService.sign(payload);
         if (createUserInput.email === 'admin@demo.com') {
             return {
                 token: token,
@@ -53,11 +57,6 @@ let AuthService = class AuthService {
         return {
             token: token,
             permissions: [createUserInput.permission],
-        };
-        this.users.push(user);
-        return {
-            token: 'jwt token',
-            permissions: ['super_admin', 'customer'],
         };
     }
     async login(loginInput) {
@@ -76,8 +75,12 @@ let AuthService = class AuthService {
                 role: '',
             };
         }
-        const payload = { email: user.email, sub: user.id };
-        const jwtToken = this.jwtService.sign(payload);
+        const payload = {
+            email: user.email,
+            sub: user.id,
+            permissions: user.permissions,
+        };
+        const jwtToken = await this.jwtService.sign(payload);
         return {
             token: jwtToken,
             permissions: user.permissions,
@@ -137,9 +140,15 @@ let AuthService = class AuthService {
             is_contact_exist: true,
         };
     }
-    me(request) {
-        console.log(request === null || request === void 0 ? void 0 : request.user);
-        return this.users[0];
+    async me(request) {
+        if (request && request.user && request.user.email) {
+            return await this.userModel
+                .findOne({ email: request.user.email })
+                .populate({ path: 'shops', model: shop_1.ShopModel.name });
+        }
+        else {
+            throw new Error('Invalid request');
+        }
     }
 };
 AuthService = __decorate([

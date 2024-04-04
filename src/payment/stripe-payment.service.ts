@@ -185,7 +185,7 @@ export class StripePaymentService {
     }
   }
 
-  async makePaymentIntentParam(order: Order, me: User) {
+  async makePaymentIntentParam(order: Order, me: UsersModel) {
     const customerList = await this.listAllCustomer();
     const currentCustomer = customerList.data.find(
       (customer: StripeCustomer) => customer.email === me.email,

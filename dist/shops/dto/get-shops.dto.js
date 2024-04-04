@@ -6,7 +6,7 @@ const pagination_args_dto_1 = require("../../common/dto/pagination-args.dto");
 const paginator_dto_1 = require("../../common/dto/paginator.dto");
 class ShopPaginator extends paginator_dto_1.Paginator {
     static _OPENAPI_METADATA_FACTORY() {
-        return { data: { required: true, type: () => [require("../entities/shop.entity").Shop] } };
+        return { data: { required: true, type: () => [require("../schema/shop").ShopModel] } };
     }
 }
 exports.ShopPaginator = ShopPaginator;

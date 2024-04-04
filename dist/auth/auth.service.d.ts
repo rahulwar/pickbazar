@@ -1,5 +1,4 @@
 import { AuthResponse, ChangePasswordDto, ForgetPasswordDto, LoginDto, CoreResponse, RegisterDto, ResetPasswordDto, VerifyForgetPasswordDto, SocialLoginDto, OtpLoginDto, OtpResponse, VerifyOtpDto, OtpDto } from './dto/create-auth.dto';
-import { User } from 'src/users/entities/user.entity';
 import { UsersModel } from 'src/users/schema/user';
 import mongoose from 'mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -18,5 +17,5 @@ export declare class AuthService {
     otpLogin(otpLoginDto: OtpLoginDto): Promise<AuthResponse>;
     verifyOtpCode(verifyOtpInput: VerifyOtpDto): Promise<CoreResponse>;
     sendOtpCode(otpInput: OtpDto): Promise<OtpResponse>;
-    me(request?: any): User;
+    me(request?: any): Promise<UsersModel>;
 }

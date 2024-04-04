@@ -26,58 +26,45 @@
 import { ShopsService } from './shops.service';
 import { CreateShopDto } from './dto/create-shop.dto';
 import { UpdateShopDto } from './dto/update-shop.dto';
-import { GetStaffsDto } from './dto/get-staffs.dto';
+import { GetShopsDto, ShopPaginator } from './dto/get-shops.dto';
 export declare class ShopsController {
     private readonly shopsService;
     constructor(shopsService: ShopsService);
-    create(createShopDto: CreateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
+    create(request: Request, createShopDto: CreateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    getShop(slug: string): Promise<import("./schema/shop").ShopModel>;
-    update(id: string, updateShopDto: UpdateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
+    getShops(request: Request, query: GetShopsDto): Promise<ShopPaginator>;
+    getShop(request: Request, slug: string): Promise<import("./schema/shop").ShopModel>;
+    update(request: Request, id: string, updateShopDto: UpdateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    remove(id: string): Promise<void>;
-    approveShop(id: string): string;
-    disapproveShop(id: string): string;
+    remove(request: Request, id: string): Promise<void>;
+    approveShop(request: Request, id: string): string;
+    disapproveShop(request: Request, id: string): string;
 }
 export declare class StaffsController {
     private readonly shopsService;
     constructor(shopsService: ShopsService);
-    create(createShopDto: CreateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
+    create(request: any, createShopDto: CreateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    getStaffs(query: GetStaffsDto): Promise<{
-        count: number;
-        current_page: number;
-        firstItem: number;
-        lastItem: number;
-        last_page: number;
-        per_page: number;
-        total: number;
-        first_page_url: string;
-        last_page_url: string;
-        next_page_url: string;
-        prev_page_url: string;
-        data: import("../users/schema/user").UsersModel[];
-    }>;
-    getShop(slug: string): Promise<import("./schema/shop").ShopModel>;
-    update(id: string, updateShopDto: UpdateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
+    getShop(request: any, slug: string): Promise<import("./schema/shop").ShopModel>;
+    update(request: any, id: string, updateShopDto: UpdateShopDto): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    remove(id: string): Promise<void>;
+    remove(request: any, id: string): Promise<void>;
 }
 export declare class DisapproveShopController {
     private shopsService;
     constructor(shopsService: ShopsService);
-    disapproveShop(id: any): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
+    disapproveShop(request: any, id: any): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
 }
 export declare class ApproveShopController {
     private shopsService;
     constructor(shopsService: ShopsService);
-    approveShop(id: any): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
+    approveShop(request: any, id: any): Promise<import("mongoose").Document<unknown, {}, import("./schema/shop").ShopModel> & import("./schema/shop").ShopModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
 }
@@ -89,4 +76,5 @@ export declare class NearByShopController {
 export declare class NewShopsController {
     private shopsService;
     constructor(shopsService: ShopsService);
+    getNewShops(request: Request, query: GetShopsDto): Promise<ShopPaginator>;
 }

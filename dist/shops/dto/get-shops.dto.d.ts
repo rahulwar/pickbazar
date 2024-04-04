@@ -1,8 +1,8 @@
 import { PaginationArgs } from 'src/common/dto/pagination-args.dto';
 import { Paginator } from 'src/common/dto/paginator.dto';
-import { Shop } from '../entities/shop.entity';
-export declare class ShopPaginator extends Paginator<Shop> {
-    data: Shop[];
+import { ShopModel } from '../schema/shop';
+export declare class ShopPaginator extends Paginator<ShopModel> {
+    data: ShopModel[];
 }
 export declare class GetShopsDto extends PaginationArgs {
     orderBy?: string;

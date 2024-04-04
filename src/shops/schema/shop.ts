@@ -17,8 +17,8 @@ import { UsersModel } from 'src/users/schema/user';
   },
 })
 export class ShopModel extends Document {
-  @Prop()
-  owner_id: number;
+  @Prop({ type: Types.ObjectId, ref: 'ShopModel' })
+  owner_id: ShopModel;
 
   @Prop({ type: Types.ObjectId, ref: 'UsersModel' })
   owner: UsersModel;
@@ -26,7 +26,7 @@ export class ShopModel extends Document {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'UsersModel' }] })
   staffs: UsersModel[];
 
-  @Prop()
+  @Prop({ default: false })
   is_active: boolean;
 
   @Prop()

@@ -59,20 +59,38 @@ const options = {
 };
 const fuse = new fuse_js_1.default(shops, options);
 let ShopsService = class ShopsService {
-    constructor(Shopmodel) {
+    constructor(Shopmodel, userModel) {
         this.Shopmodel = Shopmodel;
+        this.userModel = userModel;
         this.shops = shops;
         this.nearShops = shops;
     }
-    async create(createShopDto) {
-        return await this.Shopmodel.create(createShopDto);
+    async create(createShopDto, request) {
+        try {
+            const user = await this.userModel.findById(request.user.sub);
+            const shop = new this.Shopmodel(createShopDto);
+            shop.owner_id = user.id;
+            shop.owner = user.id;
+            await shop.save();
+            const shopArray = [...user.shops];
+            shopArray.push(shop.id);
+            user.shops = [...shopArray];
+            await user.save();
+            return shop;
+        }
+        catch (error) {
+            throw new Error(error.message);
+        }
     }
-    async getShops({ search, limit, page }) {
+    async getShops({ search, limit, page }, request) {
         if (!page)
             page = 1;
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
         const query = {};
+        if (!request.user.permissions.includes('super_admin')) {
+            query['owner'] = request.user.sub;
+        }
         if (search) {
             const searchParams = search.split(';');
             for (const searchParam of searchParams) {
@@ -82,10 +100,16 @@ let ShopsService = class ShopsService {
         }
         const total = await this.Shopmodel.countDocuments(query);
         const results = await this.Shopmodel.find(query)
-            .populate({
-            path: 'staffs',
-            model: user_1.UsersModel.name,
-        })
+            .populate([
+            {
+                path: 'staffs',
+                model: user_1.UsersModel.name,
+            },
+            {
+                path: 'owner',
+                model: user_1.UsersModel.name,
+            },
+        ])
             .skip(startIndex)
             .limit(limit)
             .exec();
@@ -106,10 +130,34 @@ let ShopsService = class ShopsService {
         const url = `/staffs?limit=${limit}`;
         return Object.assign({ data: staffs }, (0, paginate_1.paginate)(totalCount, page, limit, staffs === null || staffs === void 0 ? void 0 : staffs.length, url));
     }
-    async getShop(slug) {
-        const shop = await this.Shopmodel.findOne({ slug: slug });
-        if (!shop) {
-            throw new Error('no shop found');
+    async getShop(slug, request) {
+        let shop;
+        if (request.user.permissions.includes('super_admin')) {
+            shop = await this.Shopmodel.findOne({ slug: slug }).populate([
+                {
+                    path: 'staffs',
+                    model: user_1.UsersModel.name,
+                },
+                {
+                    path: 'owner',
+                    model: user_1.UsersModel.name,
+                },
+            ]);
+        }
+        else {
+            shop = await this.Shopmodel.findOne({
+                slug: slug,
+                owner: request.user.sub,
+            }).populate([
+                {
+                    path: 'staffs',
+                    model: user_1.UsersModel.name,
+                },
+                {
+                    path: 'owner',
+                    model: user_1.UsersModel.name,
+                },
+            ]);
         }
         return shop;
     }
@@ -129,33 +177,119 @@ let ShopsService = class ShopsService {
         });
         return nearbyShops;
     }
-    async update(id, updateShopDto) {
-        const shop = await this.Shopmodel.updateOne({ _id: id }, { $set: updateShopDto });
-        return await this.Shopmodel.findById(id);
+    async update(id, updateShopDto, request) {
+        if (request.user.permissions.includes('super_admin')) {
+            await this.Shopmodel.updateOne({ _id: id }, { $set: updateShopDto });
+        }
+        else {
+            await this.Shopmodel.updateOne({ _id: id, owner: request.user.sub }, { $set: updateShopDto });
+        }
+        return await this.Shopmodel.findById(id).populate([
+            {
+                path: 'staffs',
+                model: user_1.UsersModel.name,
+            },
+            {
+                path: 'owner',
+                model: user_1.UsersModel.name,
+            },
+        ]);
     }
-    approve(id) {
+    approve(id, request) {
         return `This action removes a #${id} shop`;
     }
-    async remove(id) {
+    async remove(id, request) {
+        const isAdmin = request.user.permissions.includes('super_admin');
+        const isShopOwner = !isAdmin;
+        const shop = await this.Shopmodel.findById(id);
+        if (!shop) {
+            throw new Error('Shop not found');
+        }
+        if (isAdmin) {
+            await this.userModel.updateMany({ shops: { $in: [shop.id] } }, { $pull: { shops: shop.id } });
+        }
+        else if (isShopOwner) {
+            await this.userModel.findByIdAndUpdate(request.user.sub, {
+                $pull: { shops: shop.id },
+            });
+        }
+        else {
+            throw new Error('Unauthorized');
+        }
         await this.Shopmodel.deleteOne({ _id: id });
     }
-    async disapproveShop(id) {
-        const shop = await this.Shopmodel.findById(id);
-        shop.is_active = false;
-        await shop.save();
-        return shop;
+    async disapproveShop(id, request) {
+        if (request.user.permissions.includes('super_admin')) {
+            const shop = await this.Shopmodel.findById(id).populate([
+                {
+                    path: 'staffs',
+                    model: user_1.UsersModel.name,
+                },
+                {
+                    path: 'owner',
+                    model: user_1.UsersModel.name,
+                },
+            ]);
+            shop.is_active = false;
+            await shop.save();
+            return shop;
+        }
     }
-    async approveShop(id) {
-        const shop = await this.Shopmodel.findById(id);
-        shop.is_active = true;
-        await shop.save();
-        return shop;
+    async approveShop(id, request) {
+        if (request.user.permissions.includes('super_admin')) {
+            const shop = await this.Shopmodel.findById(id).populate([
+                {
+                    path: 'staffs',
+                    model: user_1.UsersModel.name,
+                },
+                {
+                    path: 'owner',
+                    model: user_1.UsersModel.name,
+                },
+            ]);
+            shop.is_active = true;
+            await shop.save();
+            return shop;
+        }
+    }
+    async getNewShops({ search, limit, page }, request) {
+        if (!page)
+            page = 1;
+        if (request.user.permissions.includes('super_admin')) {
+            const startIndex = (page - 1) * limit;
+            const endIndex = page * limit;
+            let query = {};
+            if (search) {
+                const searchParams = search.split(';');
+                for (const searchParam of searchParams) {
+                    const [key, value] = searchParam.split(':');
+                    query[key] = value;
+                }
+            }
+            const totalDocs = await this.Shopmodel.countDocuments(Object.assign(Object.assign({}, query), { is_active: false }));
+            const newShops = await this.Shopmodel.find(Object.assign({ is_active: false }, query))
+                .populate([
+                {
+                    path: 'staffs',
+                    model: user_1.UsersModel.name,
+                },
+                {
+                    path: 'owner',
+                    model: user_1.UsersModel.name,
+                },
+            ])
+                .skip(startIndex)
+                .limit(limit);
+            const url = `/new-shops?search=${search}&limit=${limit}`;
+            return Object.assign({ data: newShops }, (0, paginate_1.paginate)(totalDocs, page, limit, newShops.length, url));
+        }
     }
 };
 ShopsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(shop_1.ShopModel.name)),
-    __metadata("design:paramtypes", [mongoose_2.default.Model])
+    __param(1, (0, mongoose_1.InjectModel)(user_1.UsersModel.name)),
+    __metadata("design:paramtypes", [mongoose_2.default.Model, mongoose_2.default.Model])
 ], ShopsService);
 exports.ShopsService = ShopsService;
 //# sourceMappingURL=shops.service.js.map

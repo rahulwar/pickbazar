@@ -7,10 +7,10 @@ export declare class TagsService {
     create(createTagDto: CreateTagDto): {
         type: import("../types/entities/type.entity").Type;
         name: string;
-        icon: string;
         language: string;
-        details: string;
+        icon: string;
         image: import("../common/entities/attachment.entity").Attachment;
+        details: string;
         id: number;
     };
     findAll({ page, limit, search }: GetTagsDto): {

@@ -7,6 +7,8 @@ import {
   Param,
   Delete,
   Query,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { ShopsService } from './shops.service';
 import { CreateShopDto } from './dto/create-shop.dto';
@@ -14,44 +16,61 @@ import { UpdateShopDto } from './dto/update-shop.dto';
 import { GetShopsDto, ShopPaginator } from './dto/get-shops.dto';
 import { GetStaffsDto } from './dto/get-staffs.dto';
 import { UserPaginator } from 'src/users/dto/get-users.dto';
+import { JwtAuthGuard } from 'src/middleware/JwtAuthGuard';
+import { AdminShopKeeperAccess } from 'src/middleware/AdminShopOwnerGuard';
+import { request } from 'http';
 
 @Controller('shops')
 export class ShopsController {
   constructor(private readonly shopsService: ShopsService) {}
 
   @Post()
-  create(@Body() createShopDto: CreateShopDto) {
-    return this.shopsService.create(createShopDto);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  async create(@Req() request: Request, @Body() createShopDto: CreateShopDto) {
+    return await this.shopsService.create(createShopDto, request);
   }
 
-  // @Get()
-  // async getShops(@Query() query: GetShopsDto): Promise<ShopPaginator> {
-  //   return this.shopsService.getShops(query);
-  // }
+  @Get()
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  async getShops(
+    @Req() request: Request,
+    @Query() query: GetShopsDto,
+  ): Promise<ShopPaginator> {
+    return await this.shopsService.getShops(query, request);
+  }
 
   @Get(':slug')
-  async getShop(@Param('slug') slug: string) {
-    return this.shopsService.getShop(slug);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  async getShop(@Req() request: Request, @Param('slug') slug: string) {
+    return this.shopsService.getShop(slug, request);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateShopDto: UpdateShopDto) {
-    return this.shopsService.update(id, updateShopDto);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  update(
+    @Req() request: Request,
+    @Param('id') id: string,
+    @Body() updateShopDto: UpdateShopDto,
+  ) {
+    return this.shopsService.update(id, updateShopDto, request);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.shopsService.remove(id);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  remove(@Req() request: Request, @Param('id') id: string) {
+    return this.shopsService.remove(id, request);
   }
 
   @Post('approve')
-  approveShop(@Param('id') id: string) {
-    return this.shopsService.approve(id);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  approveShop(@Req() request: Request, @Param('id') id: string) {
+    return this.shopsService.approve(id, request);
   }
 
   @Post('disapprove')
-  disapproveShop(@Param('id') id: string) {
-    return this.shopsService.approve(id);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  disapproveShop(@Req() request: Request, @Param('id') id: string) {
+    return this.shopsService.approve(id, request);
   }
 }
 
@@ -60,29 +79,35 @@ export class StaffsController {
   constructor(private readonly shopsService: ShopsService) {}
 
   @Post()
-  create(@Body() createShopDto: CreateShopDto) {
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  create(@Req() request, @Body() createShopDto: CreateShopDto) {
     return this.shopsService.create(createShopDto);
   }
 
   @Get()
-  async getStaffs(@Query() query: GetStaffsDto) // : Promise<UserPaginator>
-  {
-    return this.shopsService.getStaffs(query);
-  }
-
+  // async getStaffs(@Query() query: GetStaffsDto): Promise<UserPaginator> {
+  //   return this.shopsService.getStaffs(query);
+  // }
   @Get(':slug')
-  async getShop(@Param('slug') slug: string) {
-    return this.shopsService.getShop(slug);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  async getShop(@Req() request, @Param('slug') slug: string) {
+    return this.shopsService.getShop(slug, request);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateShopDto: UpdateShopDto) {
-    return this.shopsService.update(id, updateShopDto);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  update(
+    @Req() request,
+    @Param('id') id: string,
+    @Body() updateShopDto: UpdateShopDto,
+  ) {
+    return this.shopsService.update(id, updateShopDto, request);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.shopsService.remove(id);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  remove(@Req() request, @Param('id') id: string) {
+    return this.shopsService.remove(id, request);
   }
 }
 
@@ -91,8 +116,9 @@ export class DisapproveShopController {
   constructor(private shopsService: ShopsService) {}
 
   @Post()
-  async disapproveShop(@Body('id') id) {
-    return this.shopsService.disapproveShop(id);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  async disapproveShop(@Req() request, @Body('id') id) {
+    return this.shopsService.disapproveShop(id, request);
   }
 }
 
@@ -101,8 +127,9 @@ export class ApproveShopController {
   constructor(private shopsService: ShopsService) {}
 
   @Post()
-  async approveShop(@Body('id') id) {
-    return this.shopsService.approveShop(id);
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  async approveShop(@Req() request, @Body('id') id) {
+    return this.shopsService.approveShop(id, request);
   }
 }
 
@@ -120,8 +147,12 @@ export class NearByShopController {
 export class NewShopsController {
   constructor(private shopsService: ShopsService) {}
 
-  // @Get()
-  // async getNewShops(@Query() query: GetShopsDto): Promise<ShopPaginator> {
-  //   return this.shopsService.getNewShops(query);
-  // }
+  @Get()
+  @UseGuards(JwtAuthGuard, AdminShopKeeperAccess)
+  async getNewShops(
+    @Req() request: Request,
+    @Query() query: GetShopsDto,
+  ): Promise<ShopPaginator> {
+    return this.shopsService.getNewShops(query, request);
+  }
 }
