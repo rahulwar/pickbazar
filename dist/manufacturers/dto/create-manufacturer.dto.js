@@ -14,7 +14,6 @@ class CreateManufacturerDto extends (0, swagger_1.OmitType)(manufacturer_entity_
     'slug',
     'socials',
     'type',
-    'type_id',
     'website',
     'translated_languages',
 ]) {

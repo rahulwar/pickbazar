@@ -33,7 +33,9 @@ let AuthService = class AuthService {
         this.users = users;
     }
     async register(createUserInput) {
-        let newObj = Object.assign(Object.assign({}, createUserInput), { permissions: [createUserInput.permission] });
+        let newObj = Object.assign(Object.assign({}, createUserInput), { permissions: createUserInput.email === 'admin@demo.com'
+                ? ['super_admin', 'customer']
+                : [createUserInput.permission] });
         delete newObj.permission;
         let user;
         user = await this.userModel.findOne({ email: createUserInput.email });
@@ -43,20 +45,12 @@ let AuthService = class AuthService {
         const payload = {
             email: user.email,
             sub: user.id,
-            permissions: createUserInput.email === 'admin@demo.com'
-                ? ['super_admin', 'customer']
-                : [createUserInput.permission],
+            permissions: user.permissions,
         };
         const token = await this.jwtService.sign(payload);
-        if (createUserInput.email === 'admin@demo.com') {
-            return {
-                token: token,
-                permissions: ['super_admin', 'customer'],
-            };
-        }
         return {
             token: token,
-            permissions: [createUserInput.permission],
+            permissions: user.permissions,
         };
     }
     async login(loginInput) {

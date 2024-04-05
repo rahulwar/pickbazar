@@ -36,7 +36,10 @@ export class AuthService {
   async register(createUserInput: RegisterDto): Promise<AuthResponse> {
     let newObj = {
       ...createUserInput,
-      permissions: [createUserInput.permission],
+      permissions:
+        createUserInput.email === 'admin@demo.com'
+          ? ['super_admin', 'customer']
+          : [createUserInput.permission],
     };
     delete newObj.permission;
     let user;
@@ -47,21 +50,18 @@ export class AuthService {
     const payload = {
       email: user.email,
       sub: user.id,
-      permissions:
-        createUserInput.email === 'admin@demo.com'
-          ? ['super_admin', 'customer']
-          : [createUserInput.permission],
+      permissions: user.permissions,
     };
     const token = await this.jwtService.sign(payload);
-    if (createUserInput.email === 'admin@demo.com') {
-      return {
-        token: token,
-        permissions: ['super_admin', 'customer'],
-      };
-    }
+    // if (createUserInput.email === 'admin@demo.com') {
+    //   return {
+    //     token: token,
+    //     permissions: ['super_admin', 'customer'],
+    //   };
+    // }
     return {
       token: token,
-      permissions: [createUserInput.permission],
+      permissions: user.permissions,
     };
 
     // const user: User = {

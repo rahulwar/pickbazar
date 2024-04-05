@@ -20,12 +20,15 @@ const get_top_manufacturers_dto_1 = require("./dto/get-top-manufacturers.dto");
 const get_manufactures_dto_1 = require("./dto/get-manufactures.dto");
 const create_manufacturer_dto_1 = require("./dto/create-manufacturer.dto");
 const update_manufacturer_dto_1 = require("./dto/update-manufacturer.dto");
+const JwtAuthGuard_1 = require("../middleware/JwtAuthGuard");
+const AdminShopOwnerGuard_1 = require("../middleware/AdminShopOwnerGuard");
+const AdminOnly_1 = require("../middleware/AdminOnly");
 let ManufacturersController = class ManufacturersController {
     constructor(manufacturersService) {
         this.manufacturersService = manufacturersService;
     }
-    createProduct(createManufactureDto) {
-        return this.manufacturersService.create(createManufactureDto);
+    createProduct(request, createManufactureDto) {
+        return this.manufacturersService.create(createManufactureDto, request);
     }
     async getManufactures(query) {
         return this.manufacturersService.getManufactures(query);
@@ -34,22 +37,25 @@ let ManufacturersController = class ManufacturersController {
         return this.manufacturersService.getManufacturesBySlug(slug);
     }
     update(id, updateManufacturerDto) {
-        return this.manufacturersService.update(+id, updateManufacturerDto);
+        return this.manufacturersService.update(id, updateManufacturerDto);
     }
     remove(id) {
-        return this.manufacturersService.remove(+id);
+        return this.manufacturersService.remove(id);
     }
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201, type: require("./entities/manufacturer.entity").Manufacturer }),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
+    openapi.ApiResponse({ status: 201, type: Object }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_manufacturer_dto_1.CreateManufacturerDto]),
+    __metadata("design:paramtypes", [Object, create_manufacturer_dto_1.CreateManufacturerDto]),
     __metadata("design:returntype", void 0)
 ], ManufacturersController.prototype, "createProduct", null);
 __decorate([
     (0, common_1.Get)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 200, type: require("./dto/get-manufactures.dto").ManufacturerPaginator }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
@@ -58,7 +64,8 @@ __decorate([
 ], ManufacturersController.prototype, "getManufactures", null);
 __decorate([
     (0, common_1.Get)(':slug'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/manufacturer.entity").Manufacturer }),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
+    openapi.ApiResponse({ status: 200, type: require("./schema/manufacturer").ManufacturerModel }),
     __param(0, (0, common_1.Param)('slug')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -66,7 +73,8 @@ __decorate([
 ], ManufacturersController.prototype, "getManufactureBySlug", null);
 __decorate([
     (0, common_1.Put)(':id'),
-    openapi.ApiResponse({ status: 200, type: require("./entities/manufacturer.entity").Manufacturer }),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminOnly_1.AdminOnly),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
@@ -75,7 +83,8 @@ __decorate([
 ], ManufacturersController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
-    openapi.ApiResponse({ status: 200, type: String }),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminOnly_1.AdminOnly),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
@@ -96,7 +105,7 @@ let TopManufacturersController = class TopManufacturersController {
 };
 __decorate([
     (0, common_1.Get)(),
-    openapi.ApiResponse({ status: 200, type: [require("./entities/manufacturer.entity").Manufacturer] }),
+    openapi.ApiResponse({ status: 200, type: [require("./schema/manufacturer").ManufacturerModel] }),
     __param(0, (0, common_1.Query)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [get_top_manufacturers_dto_1.GetTopManufacturersDto]),

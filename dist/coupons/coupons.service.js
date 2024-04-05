@@ -37,7 +37,10 @@ let CouponsService = class CouponsService {
         this.coupons = coupons;
     }
     async create(createCouponDto) {
-        const coupon = await this.couponModel.find({ code: createCouponDto.code });
+        console.log('default', createCouponDto);
+        const coupon = await this.couponModel.findOne({
+            code: createCouponDto.code,
+        });
         if (coupon) {
             throw new Error(`Coupon ${createCouponDto.code} already exists`);
         }

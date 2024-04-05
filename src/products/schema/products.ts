@@ -17,8 +17,8 @@ import { v4 as uuidv4 } from 'uuid';
 })
 export class ProductModel extends Document {
   // changes from number to string
-  @Prop({ default: uuidv4 })
-  id: string;
+  // @Prop({ default: uuidv4 })
+  // id: string;
 
   @Prop({ required: true })
   name: string;
@@ -29,8 +29,11 @@ export class ProductModel extends Document {
   @Prop({ required: true })
   description: string;
 
-  @Prop({ default: uuidv4 })
+  @Prop({})
   type_id: string;
+
+  @Prop()
+  shop_id: string;
 
   // @Prop({ required: true })
   @Prop()
@@ -58,9 +61,9 @@ export class ProductModel extends Document {
   @Prop({ required: true })
   quantity: number;
 
-  // @Prop({ required: true })
+  @Prop({ default: true })
   @Prop()
-  in_stock: number;
+  in_stock: boolean;
 
   // @Prop({ required: true })
   @Prop()

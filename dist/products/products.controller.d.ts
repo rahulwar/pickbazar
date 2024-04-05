@@ -34,13 +34,15 @@ import { ProductModel } from './schema/products';
 export declare class ProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
-    createProduct(createProductDto: CreateProductDto): Promise<void>;
-    getProducts(query: GetProductsDto): Promise<ProductPaginator>;
-    getProduct(id: string): Promise<ProductModel>;
-    update(id: string, updateProductDto: UpdateProductDto): Promise<import("mongoose").Document<unknown, {}, ProductModel> & ProductModel & {
+    createProduct(request: any, createProductDto: CreateProductDto): Promise<import("mongoose").Document<unknown, {}, ProductModel> & ProductModel & {
         _id: import("mongoose").Types.ObjectId;
     }>;
-    remove(id: string): Promise<import("mongodb").DeleteResult>;
+    getProducts(query: GetProductsDto): Promise<ProductPaginator>;
+    getProduct(id: string): Promise<ProductModel>;
+    update(request: any, id: string, updateProductDto: UpdateProductDto): Promise<import("mongoose").Document<unknown, {}, ProductModel> & ProductModel & {
+        _id: import("mongoose").Types.ObjectId;
+    }>;
+    remove(request: any, id: string): Promise<import("mongodb").DeleteResult>;
 }
 export declare class PopularProductsController {
     private readonly productsService;
@@ -51,4 +53,14 @@ export declare class BestSellingProductsController {
     private readonly productsService;
     constructor(productsService: ProductsService);
     getProducts(query: GetBestSellingProductsDto): Promise<Product[]>;
+}
+export declare class DraftProductsController {
+    private readonly productsService;
+    constructor(productsService: ProductsService);
+    getProducts(query: GetProductsDto): Promise<ProductPaginator>;
+}
+export declare class ProductsStockController {
+    private readonly productsService;
+    constructor(productsService: ProductsService);
+    getProducts(query: GetProductsDto): Promise<ProductPaginator>;
 }

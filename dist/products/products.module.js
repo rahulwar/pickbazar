@@ -13,6 +13,9 @@ const products_controller_1 = require("./products.controller");
 const mongoose_1 = require("@nestjs/mongoose");
 const products_1 = require("./schema/products");
 const products_2 = require("./schema/products");
+const jwt_1 = require("@nestjs/jwt");
+const user_1 = require("../users/schema/user");
+const shop_1 = require("../shops/schema/shop");
 let ProductsModule = class ProductsModule {
 };
 ProductsModule = __decorate([
@@ -21,8 +24,20 @@ ProductsModule = __decorate([
             products_controller_1.ProductsController,
             products_controller_1.PopularProductsController,
             products_controller_1.BestSellingProductsController,
+            products_controller_1.ProductsStockController,
+            products_controller_1.DraftProductsController,
         ],
-        imports: [mongoose_1.MongooseModule.forFeature([{ name: products_2.ProductModel.name, schema: products_1.ProductSchema }])],
+        imports: [
+            mongoose_1.MongooseModule.forFeature([
+                { name: products_2.ProductModel.name, schema: products_1.ProductSchema },
+                { name: user_1.UsersModel.name, schema: user_1.UsersSchema },
+                { name: shop_1.ShopModel.name, schema: shop_1.ShopSchema },
+            ]),
+            jwt_1.JwtModule.register({
+                secret: 'your_secret_key',
+                signOptions: { expiresIn: '1h' },
+            }),
+        ],
         providers: [products_service_1.ProductsService],
     })
 ], ProductsModule);

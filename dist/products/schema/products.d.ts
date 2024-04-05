@@ -27,11 +27,11 @@ import { CategoryModel } from 'src/categories/schema/category';
 import { ShopModel } from 'src/shops/schema/shop';
 import { TypesModel } from 'src/types/schema/types';
 export declare class ProductModel extends Document {
-    id: string;
     name: string;
     slug: string;
     description: string;
     type_id: string;
+    shop_id: string;
     price: number;
     sale_price: number;
     language: string;
@@ -39,7 +39,7 @@ export declare class ProductModel extends Document {
     max_price: number;
     sku: string;
     quantity: number;
-    in_stock: number;
+    in_stock: boolean;
     is_taxable: number;
     shipping_class_id: number;
     status: string;

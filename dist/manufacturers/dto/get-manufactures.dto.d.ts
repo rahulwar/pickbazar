@@ -1,9 +1,9 @@
 import { SortOrder } from 'src/common/dto/generic-conditions.dto';
 import { PaginationArgs } from 'src/common/dto/pagination-args.dto';
 import { Paginator } from 'src/common/dto/paginator.dto';
-import { Manufacturer } from '../entities/manufacturer.entity';
-export declare class ManufacturerPaginator extends Paginator<Manufacturer> {
-    data: Manufacturer[];
+import { ManufacturerModel } from '../schema/manufacturer';
+export declare class ManufacturerPaginator extends Paginator<ManufacturerModel> {
+    data: ManufacturerModel[];
 }
 export declare class GetManufacturersDto extends PaginationArgs {
     orderBy?: QueryManufacturersOrderByColumn;

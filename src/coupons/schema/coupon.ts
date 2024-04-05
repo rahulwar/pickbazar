@@ -60,7 +60,7 @@ export class CouponModel extends Document {
   @Prop({ type: Types.ObjectId, ref: 'ShopModel' })
   shop_id: ShopModel;
 
-  @Prop()
+  @Prop({ default: false })
   is_approve: boolean;
 }
 

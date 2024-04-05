@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { plainToInstance } from 'class-transformer';
 import { InjectModel } from '@nestjs/mongoose';
 import * as mongoose from 'mongoose';
@@ -19,6 +19,7 @@ import { Document } from 'mongoose';
 import { TypesModel } from 'src/types/schema/types';
 import { CategoryModel } from 'src/categories/schema/category';
 import { ShopModel } from 'src/shops/schema/shop';
+import { UsersModel } from 'src/users/schema/user';
 const products = plainToInstance(Product, productsJson);
 const popularProducts = plainToInstance(Product, popularProductsJson);
 const bestSellingProducts = plainToInstance(Product, bestSellingProductsJson);
@@ -43,13 +44,41 @@ export class ProductsService {
   constructor(
     @InjectModel(ProductModel.name)
     private Productmodel: mongoose.Model<ProductModel>,
+
+    @InjectModel(UsersModel.name)
+    private usersModel: mongoose.Model<UsersModel>,
+    @InjectModel(ShopModel.name)
+    private shopModel: mongoose.Model<ShopModel>,
   ) {}
   private products: any = products;
   private popularProducts: any = popularProducts;
   private bestSellingProducts: any = bestSellingProducts;
 
-  async create(createProductDto: CreateProductDto) {
-    await this.Productmodel.create(createProductDto);
+  async create(createProductDto: CreateProductDto, request: any) {
+    if (request.user.permissions.includes('store_owner')) {
+      try {
+        const user = await this.usersModel.findById(request.user.sub);
+        const shopId = createProductDto.shop_id;
+        const shop = await this.shopModel.findById(shopId);
+
+        if (!shop || !user.shops.some((userShop) => userShop === shop.id)) {
+          throw new Error('User does not have access to the specified shop');
+        }
+      } catch (error) {
+        throw new ForbiddenException(
+          'User does not have permission to create product for this shop',
+        );
+      }
+    }
+
+    const newDocs = {
+      ...createProductDto,
+      type: createProductDto.type_id,
+      shop: createProductDto.shop_id,
+      in_stock: createProductDto.quantity,
+    };
+
+    return await this.Productmodel.create(newDocs);
   }
 
   async getProducts({
@@ -57,6 +86,7 @@ export class ProductsService {
     page,
     search,
   }: GetProductsDto): Promise<ProductPaginator> {
+    console.log(search);
     if (!page) page = 1;
     if (!limit) limit = 30;
     const startIndex = (page - 1) * limit;
@@ -72,7 +102,7 @@ export class ProductsService {
       }
     }
     const totalProducts = await this.Productmodel.countDocuments(query);
-    const documents = await this.Productmodel.find(query)
+    const products = await this.Productmodel.find(query)
       .populate([
         { path: 'type', model: TypesModel.name },
         { path: 'categories', model: CategoryModel.name },
@@ -80,9 +110,9 @@ export class ProductsService {
       ])
       .skip(startIndex)
       .limit(limit);
-    const products: Product[] = documents.map(
-      (doc: Document<any, any, Product>) => doc.toObject(),
-    );
+    // const products: Product[] = documents.map(
+    //   (doc: Document<any, any, Product>) => doc.toObject(),
+    // );
 
     const url = `/products?search=${search}&limit=${limit}`;
     return {
@@ -151,82 +181,128 @@ export class ProductsService {
     );
     return products;
   }
-  // getProductsStock({ limit, page, search }: GetProductsDto): ProductPaginator {
-  //   if (!page) page = 1;
-  //   if (!limit) limit = 30;
-  //   const startIndex = (page - 1) * limit;
-  //   const endIndex = page * limit;
+  async getProductsStock({
+    limit,
+    page,
+    search,
+  }: GetProductsDto): Promise<ProductPaginator> {
+    if (!page) page = 1;
+    if (!limit) limit = 30;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
 
-  // let query : any = {}
-  //   if (search) {
-  //     const parseSearchParams = search.split(';');
-  //     const searchText: any = [];
-  //     for (const searchParam of parseSearchParams) {
-  //       const [key, value] = searchParam.split(':');
-  //       // TODO: Temp Solution
-  //       if (key !== 'slug') {
-  //         searchText.push({
-  //           [key]: value,
-  //         });
-  //       }
-  //     }
+    let query: any = {};
+    if (search) {
+      const parseSearchParams = search.split(';');
 
-  //     data = fuse
-  //       .search({
-  //         $and: searchText,
-  //       })
-  //       ?.map(({ item }) => item);
-  //   }
+      for (const searchParam of parseSearchParams) {
+        const [key, value] = searchParam.split(':');
+        // TODO: Temp Solution
+        if (key !== 'slug') {
+          query[key] = value;
+        }
+      }
 
-  //   const results = data.slice(startIndex, endIndex);
-  //   const url = `/products-stock?search=${search}&limit=${limit}`;
-  //   return {
-  //     data: results,
-  //     ...paginate(data.length, page, limit, results.length, url),
-  //   };
-  // }
+      // data = fuse
+      //   .search({
+      //     $and: searchText,
+      //   })
+      //   ?.map(({ item }) => item);
+    }
+    query['quantity'] = { $lte: 10 };
 
-  // getDraftProducts({ limit, page, search }: GetProductsDto): ProductPaginator {
-  //   if (!page) page = 1;
-  //   if (!limit) limit = 30;
-  //   const startIndex = (page - 1) * limit;
-  //   const endIndex = page * limit;
-  //   let data: Product[] = this.products.filter(
-  //     (item) => item.status === 'draft',
-  //   );
+    // const results = data.slice(startIndex, endIndex);
+    const results = await this.Productmodel.find(query)
+      .populate([
+        { path: 'type', model: TypesModel.name },
+        { path: 'categories', model: CategoryModel.name },
+        { path: 'shop', model: ShopModel.name },
+      ])
+      .skip(startIndex)
+      .limit(limit);
+    const totalDocs = await this.Productmodel.countDocuments(query);
+    const url = `/products-stock?search=${search}&limit=${limit}`;
+    return {
+      data: results,
+      ...paginate(totalDocs, page, limit, results.length, url),
+    };
+  }
 
-  //   if (search) {
-  //     const parseSearchParams = search.split(';');
-  //     const searchText: any = [];
-  //     for (const searchParam of parseSearchParams) {
-  //       const [key, value] = searchParam.split(':');
-  //       // TODO: Temp Solution
-  //       if (key !== 'slug') {
-  //         searchText.push({
-  //           [key]: value,
-  //         });
-  //       }
-  //     }
+  async getDraftProducts({
+    limit,
+    page,
+    search,
+  }: GetProductsDto): Promise<ProductPaginator> {
+    console.log(search);
+    if (!page) page = 1;
+    if (!limit) limit = 30;
+    const startIndex = (page - 1) * limit;
+    const endIndex = page * limit;
+    // let data: Product[] = this.products.filter(
+    //   (item) => item.status === 'draft',
+    // );
 
-  //     data = fuse
-  //       .search({
-  //         $and: searchText,
-  //       })
-  //       ?.map(({ item }) => item);
-  //   }
+    const query = {};
 
-  //   const results = data.slice(startIndex, endIndex);
-  //   const url = `/draft-products?search=${search}&limit=${limit}`;
-  //   return {
-  //     data: results,
-  //     ...paginate(data.length, page, limit, results.length, url),
-  //   };
-  // }
+    if (search) {
+      const parseSearchParams = search.split(';');
+      const searchText: any = [];
+      for (const searchParam of parseSearchParams) {
+        const [key, value] = searchParam.split(':');
+        // TODO: Temp Solution
+        if (key !== 'slug') {
+          query[key] = value;
+        }
+      }
 
-  async updateProduct(id: string, updateProductDto: UpdateProductDto) {
+      // data = fuse
+      //   .search({
+      //     $and: searchText,
+      //   })
+      //   ?.map(({ item }) => item);
+    }
+    const totalDocs = await this.Productmodel.countDocuments(query);
+    const results = await this.Productmodel.find(query)
+      .populate([
+        { path: 'type', model: TypesModel.name },
+        { path: 'categories', model: CategoryModel.name },
+        { path: 'shop', model: ShopModel.name },
+      ])
+      .skip(startIndex)
+      .limit(limit)
+      .exec();
+
+    // const results = data.slice(startIndex, endIndex);
+    const url = `/draft-products?search=${search}&limit=${limit}`;
+    return {
+      data: results,
+      ...paginate(totalDocs, page, limit, results.length, url),
+    };
+  }
+
+  async updateProduct(
+    id: string,
+    updateProductDto: UpdateProductDto,
+    request: any,
+  ) {
     // console.log(id);
     // const product = await this.Productmodel.find({ id: id });
     // console.log(product);
+    if (request.user.permissions.includes('store_owner')) {
+      try {
+        const user = await this.usersModel.findById(request.user.sub);
+        const shopId = updateProductDto.shop_id;
+        const shop = await this.shopModel.findById(shopId);
+
+        if (!shop || !user.shops.some((userShop) => userShop === shop.id)) {
+          throw new Error('User does not have access to the specified shop');
+        }
+      } catch (error) {
+        throw new ForbiddenException(
+          'User does not have permission to create product for this shop',
+        );
+      }
+    }
     const updatedProduct = await this.Productmodel.updateOne(
       { _id: id },
       { $set: updateProductDto },
@@ -236,7 +312,7 @@ export class ProductsService {
     return await this.Productmodel.findById(id);
   }
 
-  async deleteProduct(id: number) {
+  async deleteProduct(id: string, request: any) {
     const deletedProduct = await this.Productmodel.deleteOne({ _id: id });
     return deletedProduct;
   }

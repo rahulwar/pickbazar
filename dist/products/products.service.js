@@ -52,6 +52,7 @@ const best_selling_products_json_1 = __importDefault(require("../db/pickbazar/be
 const types_1 = require("../types/schema/types");
 const category_1 = require("../categories/schema/category");
 const shop_1 = require("../shops/schema/shop");
+const user_1 = require("../users/schema/user");
 const products = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, products_json_1.default);
 const popularProducts = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, popular_products_json_1.default);
 const bestSellingProducts = (0, class_transformer_1.plainToInstance)(product_entity_1.Product, best_selling_products_json_1.default);
@@ -69,16 +70,33 @@ const options = {
     threshold: 0.3,
 };
 let ProductsService = class ProductsService {
-    constructor(Productmodel) {
+    constructor(Productmodel, usersModel, shopModel) {
         this.Productmodel = Productmodel;
+        this.usersModel = usersModel;
+        this.shopModel = shopModel;
         this.products = products;
         this.popularProducts = popularProducts;
         this.bestSellingProducts = bestSellingProducts;
     }
-    async create(createProductDto) {
-        await this.Productmodel.create(createProductDto);
+    async create(createProductDto, request) {
+        if (request.user.permissions.includes('store_owner')) {
+            try {
+                const user = await this.usersModel.findById(request.user.sub);
+                const shopId = createProductDto.shop_id;
+                const shop = await this.shopModel.findById(shopId);
+                if (!shop || !user.shops.some((userShop) => userShop === shop.id)) {
+                    throw new Error('User does not have access to the specified shop');
+                }
+            }
+            catch (error) {
+                throw new common_1.ForbiddenException('User does not have permission to create product for this shop');
+            }
+        }
+        const newDocs = Object.assign(Object.assign({}, createProductDto), { type: createProductDto.type_id, shop: createProductDto.shop_id, in_stock: createProductDto.quantity });
+        return await this.Productmodel.create(newDocs);
     }
     async getProducts({ limit, page, search, }) {
+        console.log(search);
         if (!page)
             page = 1;
         if (!limit)
@@ -94,7 +112,7 @@ let ProductsService = class ProductsService {
             }
         }
         const totalProducts = await this.Productmodel.countDocuments(query);
-        const documents = await this.Productmodel.find(query)
+        const products = await this.Productmodel.find(query)
             .populate([
             { path: 'type', model: types_1.TypesModel.name },
             { path: 'categories', model: category_1.CategoryModel.name },
@@ -102,7 +120,6 @@ let ProductsService = class ProductsService {
         ])
             .skip(startIndex)
             .limit(limit);
-        const products = documents.map((doc) => doc.toObject());
         const url = `/products?search=${search}&limit=${limit}`;
         return Object.assign({ data: products }, (0, paginate_1.paginate)(totalProducts, page, limit, products.length, url));
     }
@@ -148,11 +165,86 @@ let ProductsService = class ProductsService {
         const products = documents.map((doc) => doc.toObject());
         return products;
     }
-    async updateProduct(id, updateProductDto) {
+    async getProductsStock({ limit, page, search, }) {
+        if (!page)
+            page = 1;
+        if (!limit)
+            limit = 30;
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        let query = {};
+        if (search) {
+            const parseSearchParams = search.split(';');
+            for (const searchParam of parseSearchParams) {
+                const [key, value] = searchParam.split(':');
+                if (key !== 'slug') {
+                    query[key] = value;
+                }
+            }
+        }
+        query['quantity'] = { $lte: 10 };
+        const results = await this.Productmodel.find(query)
+            .populate([
+            { path: 'type', model: types_1.TypesModel.name },
+            { path: 'categories', model: category_1.CategoryModel.name },
+            { path: 'shop', model: shop_1.ShopModel.name },
+        ])
+            .skip(startIndex)
+            .limit(limit);
+        const totalDocs = await this.Productmodel.countDocuments(query);
+        const url = `/products-stock?search=${search}&limit=${limit}`;
+        return Object.assign({ data: results }, (0, paginate_1.paginate)(totalDocs, page, limit, results.length, url));
+    }
+    async getDraftProducts({ limit, page, search, }) {
+        console.log(search);
+        if (!page)
+            page = 1;
+        if (!limit)
+            limit = 30;
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const query = {};
+        if (search) {
+            const parseSearchParams = search.split(';');
+            const searchText = [];
+            for (const searchParam of parseSearchParams) {
+                const [key, value] = searchParam.split(':');
+                if (key !== 'slug') {
+                    query[key] = value;
+                }
+            }
+        }
+        const totalDocs = await this.Productmodel.countDocuments(query);
+        const results = await this.Productmodel.find(query)
+            .populate([
+            { path: 'type', model: types_1.TypesModel.name },
+            { path: 'categories', model: category_1.CategoryModel.name },
+            { path: 'shop', model: shop_1.ShopModel.name },
+        ])
+            .skip(startIndex)
+            .limit(limit)
+            .exec();
+        const url = `/draft-products?search=${search}&limit=${limit}`;
+        return Object.assign({ data: results }, (0, paginate_1.paginate)(totalDocs, page, limit, results.length, url));
+    }
+    async updateProduct(id, updateProductDto, request) {
+        if (request.user.permissions.includes('store_owner')) {
+            try {
+                const user = await this.usersModel.findById(request.user.sub);
+                const shopId = updateProductDto.shop_id;
+                const shop = await this.shopModel.findById(shopId);
+                if (!shop || !user.shops.some((userShop) => userShop === shop.id)) {
+                    throw new Error('User does not have access to the specified shop');
+                }
+            }
+            catch (error) {
+                throw new common_1.ForbiddenException('User does not have permission to create product for this shop');
+            }
+        }
         const updatedProduct = await this.Productmodel.updateOne({ _id: id }, { $set: updateProductDto });
         return await this.Productmodel.findById(id);
     }
-    async deleteProduct(id) {
+    async deleteProduct(id, request) {
         const deletedProduct = await this.Productmodel.deleteOne({ _id: id });
         return deletedProduct;
     }
@@ -160,7 +252,9 @@ let ProductsService = class ProductsService {
 ProductsService = __decorate([
     (0, common_1.Injectable)(),
     __param(0, (0, mongoose_1.InjectModel)(products_1.ProductModel.name)),
-    __metadata("design:paramtypes", [mongoose.Model])
+    __param(1, (0, mongoose_1.InjectModel)(user_1.UsersModel.name)),
+    __param(2, (0, mongoose_1.InjectModel)(shop_1.ShopModel.name)),
+    __metadata("design:paramtypes", [mongoose.Model, mongoose.Model, mongoose.Model])
 ], ProductsService);
 exports.ProductsService = ProductsService;
 //# sourceMappingURL=products.service.js.map

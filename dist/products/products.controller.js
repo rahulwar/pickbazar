@@ -12,7 +12,7 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.BestSellingProductsController = exports.PopularProductsController = exports.ProductsController = void 0;
+exports.ProductsStockController = exports.DraftProductsController = exports.BestSellingProductsController = exports.PopularProductsController = exports.ProductsController = void 0;
 const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
 const products_service_1 = require("./products.service");
@@ -21,12 +21,14 @@ const update_product_dto_1 = require("./dto/update-product.dto");
 const get_products_dto_1 = require("./dto/get-products.dto");
 const get_popular_products_dto_1 = require("./dto/get-popular-products.dto");
 const get_best_selling_products_dto_1 = require("./dto/get-best-selling-products.dto");
+const JwtAuthGuard_1 = require("../middleware/JwtAuthGuard");
+const AdminShopOwnerGuard_1 = require("../middleware/AdminShopOwnerGuard");
 let ProductsController = class ProductsController {
     constructor(productsService) {
         this.productsService = productsService;
     }
-    createProduct(createProductDto) {
-        return this.productsService.create(createProductDto);
+    createProduct(request, createProductDto) {
+        return this.productsService.create(createProductDto, request);
     }
     async getProducts(query) {
         return this.productsService.getProducts(query);
@@ -34,19 +36,21 @@ let ProductsController = class ProductsController {
     async getProduct(id) {
         return this.productsService.getProductByid(id);
     }
-    update(id, updateProductDto) {
-        return this.productsService.updateProduct(id, updateProductDto);
+    update(request, id, updateProductDto) {
+        return this.productsService.updateProduct(id, updateProductDto, request);
     }
-    remove(id) {
-        return this.productsService.deleteProduct(+id);
+    remove(request, id) {
+        return this.productsService.deleteProduct(id, request);
     }
 };
 __decorate([
     (0, common_1.Post)(),
-    openapi.ApiResponse({ status: 201 }),
-    __param(0, (0, common_1.Body)()),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
+    openapi.ApiResponse({ status: 201, type: Object }),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [create_product_dto_1.CreateProductDto]),
+    __metadata("design:paramtypes", [Object, create_product_dto_1.CreateProductDto]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "createProduct", null);
 __decorate([
@@ -67,19 +71,23 @@ __decorate([
 ], ProductsController.prototype, "getProduct", null);
 __decorate([
     (0, common_1.Put)(':id'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 200, type: Object }),
-    __param(0, (0, common_1.Param)('id')),
-    __param(1, (0, common_1.Body)()),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
+    __param(2, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, update_product_dto_1.UpdateProductDto]),
+    __metadata("design:paramtypes", [Object, String, update_product_dto_1.UpdateProductDto]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "update", null);
 __decorate([
     (0, common_1.Delete)(':id'),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
     openapi.ApiResponse({ status: 200, type: Object }),
-    __param(0, (0, common_1.Param)('id')),
+    __param(0, (0, common_1.Req)()),
+    __param(1, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object, String]),
     __metadata("design:returntype", void 0)
 ], ProductsController.prototype, "remove", null);
 ProductsController = __decorate([
@@ -129,4 +137,49 @@ BestSellingProductsController = __decorate([
     __metadata("design:paramtypes", [products_service_1.ProductsService])
 ], BestSellingProductsController);
 exports.BestSellingProductsController = BestSellingProductsController;
+let DraftProductsController = class DraftProductsController {
+    constructor(productsService) {
+        this.productsService = productsService;
+    }
+    async getProducts(query) {
+        console.log('draft products');
+        return this.productsService.getDraftProducts(query);
+    }
+};
+__decorate([
+    (0, common_1.Get)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
+    openapi.ApiResponse({ status: 200, type: require("./dto/get-products.dto").ProductPaginator }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [get_products_dto_1.GetProductsDto]),
+    __metadata("design:returntype", Promise)
+], DraftProductsController.prototype, "getProducts", null);
+DraftProductsController = __decorate([
+    (0, common_1.Controller)('draft-products'),
+    __metadata("design:paramtypes", [products_service_1.ProductsService])
+], DraftProductsController);
+exports.DraftProductsController = DraftProductsController;
+let ProductsStockController = class ProductsStockController {
+    constructor(productsService) {
+        this.productsService = productsService;
+    }
+    async getProducts(query) {
+        return this.productsService.getProductsStock(query);
+    }
+};
+__decorate([
+    (0, common_1.Get)(),
+    (0, common_1.UseGuards)(JwtAuthGuard_1.JwtAuthGuard, AdminShopOwnerGuard_1.AdminShopKeeperAccess),
+    openapi.ApiResponse({ status: 200, type: require("./dto/get-products.dto").ProductPaginator }),
+    __param(0, (0, common_1.Query)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [get_products_dto_1.GetProductsDto]),
+    __metadata("design:returntype", Promise)
+], ProductsStockController.prototype, "getProducts", null);
+ProductsStockController = __decorate([
+    (0, common_1.Controller)('products-stock'),
+    __metadata("design:paramtypes", [products_service_1.ProductsService])
+], ProductsStockController);
+exports.ProductsStockController = ProductsStockController;
 //# sourceMappingURL=products.controller.js.map

@@ -14,13 +14,8 @@ const mongoose_1 = require("@nestjs/mongoose");
 const mongoose_2 = require("mongoose");
 const shop_1 = require("../../shops/schema/shop");
 const types_1 = require("../../types/schema/types");
-const uuid_1 = require("uuid");
 let ProductModel = class ProductModel extends mongoose_2.Document {
 };
-__decorate([
-    (0, mongoose_1.Prop)({ default: uuid_1.v4 }),
-    __metadata("design:type", String)
-], ProductModel.prototype, "id", void 0);
 __decorate([
     (0, mongoose_1.Prop)({ required: true }),
     __metadata("design:type", String)
@@ -34,9 +29,13 @@ __decorate([
     __metadata("design:type", String)
 ], ProductModel.prototype, "description", void 0);
 __decorate([
-    (0, mongoose_1.Prop)({ default: uuid_1.v4 }),
+    (0, mongoose_1.Prop)({}),
     __metadata("design:type", String)
 ], ProductModel.prototype, "type_id", void 0);
+__decorate([
+    (0, mongoose_1.Prop)(),
+    __metadata("design:type", String)
+], ProductModel.prototype, "shop_id", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
     __metadata("design:type", Number)
@@ -66,8 +65,9 @@ __decorate([
     __metadata("design:type", Number)
 ], ProductModel.prototype, "quantity", void 0);
 __decorate([
+    (0, mongoose_1.Prop)({ default: true }),
     (0, mongoose_1.Prop)(),
-    __metadata("design:type", Number)
+    __metadata("design:type", Boolean)
 ], ProductModel.prototype, "in_stock", void 0);
 __decorate([
     (0, mongoose_1.Prop)(),
